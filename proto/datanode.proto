@@ -1,0 +1,41 @@
+syntax = "proto3";
+option go_package = "./dataNode";
+
+service DataNode {
+  rpc Write (WriteReq) returns (WriteRes) {}
+}
+
+message NodeInfo{
+  enum NodeReplicationStatus {
+    SUCCESS = 0;
+    FAILED = 1;
+    PENDING = 2;
+  }
+  string nodeID = 1;
+  string address = 2;
+  uint32 grpcPort = 3;
+  NodeReplicationStatus replicationStatus = 4;
+}
+
+message WriteReq {
+  string iNodeID = 1;
+  string blockID = 2;
+  bytes blocksData = 3;
+  uint32 replicationTarget = 4;
+  uint32 currentReplicated = 5;
+  repeated NodeInfo replicationNodeTarget = 6;
+  string jobQueueID = 7;
+}
+
+message WriteResDetail {
+  string description = 1;
+}
+
+message WriteRes {
+  enum WriteStatus {
+    SUCCESS = 0;
+    FAILED = 1;
+  }
+  WriteStatus status = 1;
+  WriteResDetail detail = 2;
+}

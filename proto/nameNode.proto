@@ -1,0 +1,22 @@
+syntax = "proto3";
+option go_package = "./nameNode";
+
+service NameNode {
+  rpc UpdateJobQueue (UpdateJobQueueReq) returns (UpdateJobQueueRes) {}
+}
+
+message UpdateJobQueueReq{
+    string jobQueueID = 1;
+    string iNodeID = 2;
+    string blockID = 3;
+    string nodeID = 4;
+    enum UpdateType {
+        REPLICATE_STATUS = 0;
+        JOB_QUEUE_STATUS = 1;
+    }
+    UpdateType updateType = 5;
+}
+
+message UpdateJobQueueRes{
+
+}
