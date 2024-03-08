@@ -32,7 +32,9 @@ func main() {
 	defer kvRepo.CloseConn()
 
 	// init usecase
-	writeUC := usecaseImpl.NewWriteUsecase(cfg, kvRepo)
+	dataNodeService := serviceImpl.NewDataNodeService()
+	nameNodeService := serviceImpl.NewNameNodeService(cfg)
+	writeUC := usecaseImpl.NewWriteUsecase(cfg, kvRepo, dataNodeService, nameNodeService)
 
 	log.Printf("dataNode %s will run on address %s & grpc port %d", cfg.NodeId, cfg.Address, cfg.GrpcPort)
 

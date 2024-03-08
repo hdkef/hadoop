@@ -3,32 +3,32 @@ package impl
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/hdkef/hadoop/services/dataNode/config"
 	"github.com/hdkef/hadoop/services/dataNode/entity"
+	"github.com/hdkef/hadoop/services/dataNode/service"
 	"github.com/hdkef/hadoop/services/dataNode/usecase"
-	"google.golang.org/grpc"
 
 	pkgRepo "github.com/hdkef/hadoop/pkg/repository"
-	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
-	nameNodeProto "github.com/hdkef/hadoop/proto/nameNode"
 )
 
 type WriteUsecaseImpl struct {
-	cfg    *config.Config
-	kvRepo pkgRepo.KeyValueRepository
+	cfg             *config.Config
+	kvRepo          pkgRepo.KeyValueRepository
+	dataNodeService service.DataNodeService
+	nameNodeService service.NameNodeService
 }
 
-func NewWriteUsecase(cfg *config.Config, kvRepo pkgRepo.KeyValueRepository) usecase.WriteUsecase {
+func NewWriteUsecase(cfg *config.Config, kvRepo pkgRepo.KeyValueRepository, dataNodeService service.DataNodeService, nameNodeService service.NameNodeService) usecase.WriteUsecase {
 
 	if cfg == nil {
 		panic("nil config")
 	}
 
 	return &WriteUsecaseImpl{
-		cfg:    cfg,
-		kvRepo: kvRepo,
+		cfg:             cfg,
+		kvRepo:          kvRepo,
+		dataNodeService: dataNodeService,
 	}
 }
 
@@ -52,19 +52,7 @@ func (w *WriteUsecaseImpl) Write(ctx context.Context, dto *entity.WriteDto) erro
 	}
 
 	// update jobQueue nameNode
-	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", w.cfg.NameNodeAddress, w.cfg.NameNodePort), grpc.WithInsecure())
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	client := nameNodeProto.NewNameNodeClient(conn)
-	_, err = client.UpdateJobQueue(ctx, &nameNodeProto.UpdateJobQueueReq{
-		JobQueueID: dto.GetJobQueueID(),
-		INodeID:    dto.GetInodeID(),
-		BlockID:    dto.GetBlockID(),
-		NodeID:     w.cfg.NodeId,
-		UpdateType: nameNodeProto.UpdateJobQueueReq_REPLICATE_STATUS,
-	})
+	err = w.nameNodeService.UpdateJobQueue(ctx, dto, true)
 	if err != nil {
 		return err
 	}
@@ -91,14 +79,7 @@ func (w *WriteUsecaseImpl) Write(ctx context.Context, dto *entity.WriteDto) erro
 		}
 
 		// execute replication on next node
-		conn, err := grpc.Dial(fmt.Sprintf("%v:%d", nextNode.GetAddress(), nextNode.GetGRPCPort()), grpc.WithInsecure())
-		if err != nil {
-			return err
-		}
-		defer conn.Close()
-
-		client := dataNodeProto.NewDataNodeClient(conn)
-		_, err = client.Write(ctx, dto.ToProto())
+		err = w.dataNodeService.ReplicateNextNode(ctx, nextNode, dto)
 		if err != nil {
 			return err
 		}

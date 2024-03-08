@@ -41,7 +41,7 @@ func (ib *INodeBlockID) GetDirPath() string {
 }
 
 func (i *INodeBlockID) GetKey() string {
-	return fmt.Sprintf("%s_%s", i.iNodeID, i.blockID)
+	return fmt.Sprintf("inodeblockid_%s_%s", i.iNodeID, i.blockID)
 }
 
 func (i *INodeBlockID) Write(root string, binaryData []byte) error {

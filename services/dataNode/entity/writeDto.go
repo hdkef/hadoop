@@ -1,6 +1,7 @@
 package entity
 
 import (
+	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
 )
 
@@ -10,7 +11,7 @@ type WriteDto struct {
 	blocksData            []byte
 	replicationTarget     uint32
 	currentReplicated     uint32
-	replicationNodeTarget []NodeInfo
+	replicationNodeTarget []*pkgEt.NodeInfo
 	jobQueueID            string
 }
 
@@ -35,7 +36,7 @@ func (w *WriteDto) SetCurrentReplicated(currentReplicated uint32) {
 	w.currentReplicated = currentReplicated
 }
 
-func (w *WriteDto) SetReplicationNodeTarget(replicationNodeTarget []NodeInfo) {
+func (w *WriteDto) SetReplicationNodeTarget(replicationNodeTarget []*pkgEt.NodeInfo) {
 	w.replicationNodeTarget = replicationNodeTarget
 }
 
@@ -64,7 +65,7 @@ func (w *WriteDto) GetCurrentReplicated() uint32 {
 	return w.currentReplicated
 }
 
-func (w *WriteDto) GetReplicationNodeTarget() []NodeInfo {
+func (w *WriteDto) GetReplicationNodeTarget() []*pkgEt.NodeInfo {
 	return w.replicationNodeTarget
 }
 
@@ -76,20 +77,20 @@ func (w *WriteDto) IncrementCurrentReplicated() {
 	w.currentReplicated++
 }
 
-func (w *WriteDto) UpdateNodeInfo(idx int, nodeInfo NodeInfo) {
+func (w *WriteDto) UpdateNodeInfo(idx int, UpdateNodeInfo *pkgEt.NodeInfo) {
 	if idx < len(w.replicationNodeTarget) {
-		w.replicationNodeTarget[idx] = nodeInfo
+		w.replicationNodeTarget[idx] = UpdateNodeInfo
 	}
 }
 
-func (w *WriteDto) NextReplicaNode() (NodeInfo, bool) {
+func (w *WriteDto) NextReplicaNode() (*pkgEt.NodeInfo, bool) {
 	for _, v := range w.replicationNodeTarget {
 		if !v.IsSuccess() && !v.IsFailed() {
 
 			return v, true
 		}
 	}
-	return NodeInfo{}, false
+	return nil, false
 }
 
 func (writeDto *WriteDto) NewFromProto(req *dataNodeProto.WriteReq) {
@@ -101,15 +102,15 @@ func (writeDto *WriteDto) NewFromProto(req *dataNodeProto.WriteReq) {
 	writeDto.SetCurrentReplicated(req.GetCurrentReplicated())
 	writeDto.SetJobQueueID(req.GetJobQueueID())
 
-	replicationNodeTarget := []NodeInfo{}
+	replicationNodeTarget := []*pkgEt.NodeInfo{}
 
 	for _, v := range req.GetReplicationNodeTarget() {
-		node := NodeInfo{}
+		node := pkgEt.NodeInfo{}
 		node.SetNodeID(v.GetNodeID())
 		node.SetAddress(v.GetAddress())
-		node.SetReplicationStatus(ReplicationStatusEnum(v.GetReplicationStatus()))
+		node.SetReplicationStatus(pkgEt.ReplicationStatusEnum(v.GetReplicationStatus()))
 		node.SetGRPCPort(v.GetGrpcPort())
-		replicationNodeTarget = append(replicationNodeTarget, node)
+		replicationNodeTarget = append(replicationNodeTarget, &node)
 	}
 
 	writeDto.SetReplicationNodeTarget(replicationNodeTarget)
@@ -121,9 +122,9 @@ func (writeDto *WriteDto) ToProto() *dataNodeProto.WriteReq {
 
 	for _, v := range writeDto.replicationNodeTarget {
 		nodeTarget = append(nodeTarget, &dataNodeProto.NodeInfo{
-			NodeID:            v.nodeID,
-			Address:           v.address,
-			GrpcPort:          v.grpcPort,
+			NodeID:            v.GetNodeID(),
+			Address:           v.GetAddress(),
+			GrpcPort:          v.GetGRPCPort(),
 			ReplicationStatus: v.GetReplicationStatusProto(),
 		})
 	}

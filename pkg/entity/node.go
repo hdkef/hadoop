@@ -4,8 +4,9 @@ import dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
 
 type ReplicationStatusEnum uint8
 
-const REPLICATION_STATUS_SUCCESS ReplicationStatusEnum = 1
-const REPLICATION_STATUS_FAILED ReplicationStatusEnum = 2
+const REPLICATION_STATUS_SUCCESS ReplicationStatusEnum = 0
+const REPLICATION_STATUS_FAILED ReplicationStatusEnum = 1
+const REPLICATION_STATUS_PENDING ReplicationStatusEnum = 2
 
 type NodeInfo struct {
 	nodeID            string

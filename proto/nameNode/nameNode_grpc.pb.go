@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.21.7
-// source: proto/nameNode.proto
+// source: proto/nameNode/nameNode.proto
 
 package nameNode
 
@@ -105,5 +105,5 @@ var NameNode_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/nameNode.proto",
+	Metadata: "proto/nameNode/nameNode.proto",
 }

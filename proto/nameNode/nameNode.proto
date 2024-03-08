@@ -15,6 +15,7 @@ message UpdateJobQueueReq{
         JOB_QUEUE_STATUS = 1;
     }
     UpdateType updateType = 5;
+    bool isSuccess = 6;
 }
 
 message UpdateJobQueueRes{

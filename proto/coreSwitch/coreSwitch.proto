@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "./coreSwitch";
+
+service CoreSwitch {
+    rpc Write(WriteReq) returns (stream WriteRes) {}
+}
+
+message WriteReq {
+    bytes files = 1;
+    string dirTarget = 2;
+}
+
+message WriteRes {
+    uint32 progress = 1;
+}
