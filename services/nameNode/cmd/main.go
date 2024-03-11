@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hdkef/hadoop/services/nameNode/config"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 	ucImpl "github.com/hdkef/hadoop/services/nameNode/usecase/impl"
 	"golang.org/x/sync/errgroup"
@@ -15,7 +16,8 @@ func main() {
 
 	dataNodeCache := make(map[string]*entity.ServiceDiscovery)
 	mtx := &sync.Mutex{}
-	cronUC := ucImpl.NewCronUsecase()
+	cfg := &config.Config{}
+	cronUC := ucImpl.NewCronUsecase(cfg, dataNodeCache, mtx)
 
 	// spawn cron on another thread
 	cron := time.NewTicker(1 * time.Second)
@@ -36,7 +38,7 @@ func main() {
 
 			// cache dataNode service entry registry
 			errGroup.Go(func() error {
-				return cronUC.SetDataNodeCache(ctx, dataNodeCache, mtx)
+				return cronUC.SetDataNodeCache(ctx)
 			})
 
 			err := errGroup.Wait()

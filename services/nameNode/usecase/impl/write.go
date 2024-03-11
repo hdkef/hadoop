@@ -4,83 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/google/uuid"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
-	"github.com/hdkef/hadoop/services/nameNode/config"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
-	"github.com/hdkef/hadoop/services/nameNode/repository"
-	"github.com/hdkef/hadoop/services/nameNode/service"
-	svcImpl "github.com/hdkef/hadoop/services/nameNode/service/impl"
-	"github.com/hdkef/hadoop/services/nameNode/usecase"
 )
-
-type WriteRequestUsecaseImpl struct {
-	metadataRepo     repository.MetadataRepo
-	nodeStorageRepo  repository.NodeStorageRepo
-	iNodeRepo        repository.INodeRepo
-	serviceRegistry  service.ServiceRegistry
-	dataNodeCache    map[string]*entity.ServiceDiscovery
-	transactionsRepo repository.TransactionsRepo
-	mtx              *sync.Mutex
-	cfg              *config.Config
-	nodeAllocator    service.NodeAllocator
-	dataNodeService  service.DataNodeService
-}
-
-// CheckDataNode implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CheckDataNode(ctx context.Context) error {
-	svd, err := w.serviceRegistry.GetAll(ctx, "dataNode", "")
-	if err != nil {
-		return err
-	}
-	w.mtx.Lock()
-	defer w.mtx.Unlock()
-	for _, v := range svd {
-		w.dataNodeCache[v.GetID()] = v
-	}
-	return nil
-}
-
-func NewWriteUsecase(dataNodeCache map[string]*entity.ServiceDiscovery, mtx *sync.Mutex) usecase.WriteRequestUsecase {
-	return &WriteRequestUsecaseImpl{
-		dataNodeCache:   dataNodeCache,
-		mtx:             mtx,
-		nodeAllocator:   svcImpl.NewNodeAllocator(),
-		dataNodeService: svcImpl.NewDataNodeService(),
-	}
-}
-
-// CommitCreateRequest implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CommitCreateRequest(ctx context.Context, txID uuid.UUID, hash string) error {
-
-	// get transactions
-	tx, err := w.transactionsRepo.Get(ctx, txID)
-	if err != nil || tx == nil {
-		return errors.New("transactions not found")
-	}
-
-	// create iNodeblockids
-
-	iNode := &entity.INode{}
-	iNode.SetID(tx.GetID())
-	iNode.SetHash(hash)
-	iNode.SetBlocks(tx.GetBlockTaret())
-
-	err = w.iNodeRepo.Create(ctx, iNode)
-	if err != nil {
-		return err
-	}
-
-	// update transaction checkpoint
-	err = w.transactionsRepo.Commit(ctx, tx.GetID())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 
 // WriteRequest implements usecase.WriteRequestUsecase.
 func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity.CreateReqDto) (res []*pkgEt.QueryNodeTarget, err error) {

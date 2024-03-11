@@ -7,20 +7,8 @@ import (
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	"github.com/hdkef/hadoop/pkg/helper"
 	"github.com/hdkef/hadoop/services/client/entity"
-	"github.com/hdkef/hadoop/services/client/service"
-	"github.com/hdkef/hadoop/services/client/usecase"
 	"golang.org/x/sync/errgroup"
 )
-
-type WriteUsecaseImpl struct {
-	dataNodeService service.DataNodeService
-}
-
-func NewWriteUsecase(dataNodeService service.DataNodeService) usecase.WriteUsecase {
-	return &WriteUsecaseImpl{
-		dataNodeService: dataNodeService,
-	}
-}
 
 // Write implements usecase.WriteUsecase.
 func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, chProgress chan entity.CreateStreamRes) {

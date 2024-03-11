@@ -11,5 +11,4 @@ import (
 type WriteRequestUsecase interface {
 	CreateRequest(ctx context.Context, dto *entity.CreateReqDto) ([]*pkgEt.QueryNodeTarget, error)
 	CommitCreateRequest(ctx context.Context, transactionsID uuid.UUID, hash string) error
-	CheckDataNode(ctx context.Context) error
 }
