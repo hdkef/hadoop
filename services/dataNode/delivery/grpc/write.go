@@ -7,8 +7,8 @@ import (
 	"github.com/hdkef/hadoop/services/dataNode/entity"
 )
 
-// Write implements dataNode.DataNodeServer.
-func (g *handler) Write(ctx context.Context, req *dataNodeProto.CreateReq) (*dataNodeProto.CreateRes, error) {
+// Create implements dataNode.DataNodeServer.
+func (g *handler) Create(ctx context.Context, req *dataNodeProto.CreateReq) (*dataNodeProto.CreateRes, error) {
 
 	// create domain create dto
 	createDto := &entity.CreateDto{}

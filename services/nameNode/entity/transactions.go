@@ -15,13 +15,13 @@ const (
 type TransactionsAction int
 
 type Transactions struct {
-	id                  uuid.UUID
-	action              TransactionsAction
-	createdAt           time.Time
-	isCommitted         bool
-	transactionNodeInfo []*TransactionNodeInfo
-	leaseTimeInSecond   uint64
-	metadata            *Metadata
+	id                uuid.UUID
+	action            TransactionsAction
+	createdAt         time.Time
+	isCommitted       bool
+	blockTarget       []*BlockTarget
+	leaseTimeInSecond uint64
+	metadata          *Metadata
 }
 
 func (t *Transactions) GetID() uuid.UUID {
@@ -40,8 +40,8 @@ func (t *Transactions) GetIsCommitted() bool {
 	return t.isCommitted
 }
 
-func (t *Transactions) GetTransactionNodeInfo() []*TransactionNodeInfo {
-	return t.transactionNodeInfo
+func (t *Transactions) GetBlockTaret() []*BlockTarget {
+	return t.blockTarget
 }
 
 func (t *Transactions) GetLeaseTimeInSecond() uint64 {
@@ -65,8 +65,8 @@ func (t *Transactions) SetIsCommitted(isCommitted bool) {
 	t.isCommitted = isCommitted
 }
 
-func (t *Transactions) SetTransactionNodeInfo(nodeInfo []*TransactionNodeInfo) {
-	t.transactionNodeInfo = nodeInfo
+func (t *Transactions) SetBlockTarget(blockTarget []*BlockTarget) {
+	t.blockTarget = blockTarget
 }
 
 func (t *Transactions) SetLeaseTimeInSecond(leaseTime uint64) {

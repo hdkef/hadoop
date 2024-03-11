@@ -11,6 +11,7 @@ import (
 type handler struct {
 	dataNodeProto.UnimplementedDataNodeServer
 	writeUC usecase.WriteUsecase
+	cfg     *config.Config
 }
 
 func NewGrpcHandler(cfg *config.Config, writeUC usecase.WriteUsecase) *grpc.Server {
@@ -22,6 +23,7 @@ func NewGrpcHandler(cfg *config.Config, writeUC usecase.WriteUsecase) *grpc.Serv
 	grpcServer := grpc.NewServer()
 	handler := &handler{
 		writeUC: writeUC,
+		cfg:     cfg,
 	}
 
 	dataNodeProto.RegisterDataNodeServer(grpcServer, handler)

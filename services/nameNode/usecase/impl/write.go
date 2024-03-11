@@ -26,6 +26,7 @@ type WriteRequestUsecaseImpl struct {
 	mtx              *sync.Mutex
 	cfg              *config.Config
 	nodeAllocator    service.NodeAllocator
+	dataNodeService  service.DataNodeService
 }
 
 // CheckDataNode implements usecase.WriteRequestUsecase.
@@ -42,22 +43,43 @@ func (w *WriteRequestUsecaseImpl) CheckDataNode(ctx context.Context) error {
 	return nil
 }
 
-func NewWriteUsecase(dataNodeCache map[string]*entity.ServiceDiscovery) usecase.WriteRequestUsecase {
+func NewWriteUsecase(dataNodeCache map[string]*entity.ServiceDiscovery, mtx *sync.Mutex) usecase.WriteRequestUsecase {
 	return &WriteRequestUsecaseImpl{
-		dataNodeCache: dataNodeCache,
-		mtx:           &sync.Mutex{},
-		nodeAllocator: svcImpl.NewNodeAllocator(),
+		dataNodeCache:   dataNodeCache,
+		mtx:             mtx,
+		nodeAllocator:   svcImpl.NewNodeAllocator(),
+		dataNodeService: svcImpl.NewDataNodeService(),
 	}
 }
 
 // CommitCreateRequest implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CommitCreateRequest(ctx context.Context) error {
+func (w *WriteRequestUsecaseImpl) CommitCreateRequest(ctx context.Context, txID uuid.UUID, hash string) error {
+
+	// get transactions
+	tx, err := w.transactionsRepo.Get(ctx, txID)
+	if err != nil || tx == nil {
+		return errors.New("transactions not found")
+	}
 
 	// create iNodeblockids
 
-	// update transaction checkpoint
+	iNode := &entity.INode{}
+	iNode.SetID(tx.GetID())
+	iNode.SetHash(hash)
+	iNode.SetBlocks(tx.GetBlockTaret())
 
-	panic("unimplemented")
+	err = w.iNodeRepo.Create(ctx, iNode)
+	if err != nil {
+		return err
+	}
+
+	// update transaction checkpoint
+	err = w.transactionsRepo.Commit(ctx, tx.GetID())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // WriteRequest implements usecase.WriteRequestUsecase.
@@ -119,6 +141,11 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 		nd, err := w.nodeStorageRepo.GetNodeStorage(ctx, v.GetID())
 		if err != nil || nd == nil {
 			// if in cache not exist, try query to dataNode
+			qNd, err := w.dataNodeService.QueryStorage(ctx, v)
+			if err != nil {
+				continue
+			}
+			nodeStorages = append(nodeStorages, qNd)
 		} else {
 			nodeStorages = append(nodeStorages, nd)
 		}
@@ -139,8 +166,6 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 	transactions.SetAction(entity.TRANSACTION_ACTION_CREATE)
 	transactions.SetLeaseTimeInSecond(leaseTimeInSec)
 
-	transactionNodeInfo := []*entity.TransactionNodeInfo{}
-
 	allBlockIDs := []uuid.UUID{}
 
 	for _, v := range blockTargets {
@@ -152,15 +177,6 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 		replNodeTarget := []*pkgEt.NodeTarget{}
 
 		for _, k := range v.NodeIDs {
-			// domain transaction
-			newTr := &entity.TransactionNodeInfo{}
-			newTr.SetAddress(w.dataNodeCache[k].GetAddress())
-			newTr.SetGRPCPort(w.dataNodeCache[k].GetPort())
-			newTr.SetBlockID(v.ID)
-			newTr.SetNodeID(k)
-			newTr.SetFileSize(v.Size)
-			transactionNodeInfo = append(transactionNodeInfo, newTr)
-
 			newNodeTarget := &pkgEt.NodeTarget{}
 			newNodeTarget.SetBlockID(v.ID)
 			newNodeTarget.SetNodeAddress(w.dataNodeCache[k].GetAddress())
@@ -178,7 +194,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 		res = append(res, q)
 	}
 
-	transactions.SetTransactionNodeInfo(transactionNodeInfo)
+	transactions.SetBlockTarget(blockTargets)
 
 	err = w.transactionsRepo.Add(ctx, transactions)
 	if err != nil {

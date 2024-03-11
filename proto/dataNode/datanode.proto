@@ -3,6 +3,7 @@ option go_package = "./dataNode";
 
 service DataNode {
   rpc Create (CreateReq) returns (CreateRes) {}
+  rpc QueryStorage(QueryStorageReq) returns (QueryStorageRes){} 
 }
 
 message NodeInfo{
@@ -37,4 +38,13 @@ message CreateRes {
   }
   CreateStatus status = 1;
   CreateResDetail detail = 2;
+}
+
+message QueryStorageReq {
+  
+}
+
+message QueryStorageRes {
+  uint64 total_storage = 1;
+  uint64 actual_used_storage = 2;
 }

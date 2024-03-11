@@ -1,7 +1,9 @@
 package entity
 
+import "github.com/google/uuid"
+
 type INode struct {
-	id     string
+	id     uuid.UUID
 	blocks []*BlockTarget
 	hash   string
 }
