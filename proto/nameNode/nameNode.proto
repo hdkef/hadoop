@@ -2,11 +2,11 @@ syntax = "proto3";
 option go_package = "./nameNode";
 
 service NameNode {
-  rpc UpdateJobQueue (UpdateJobQueueReq) returns (UpdateJobQueueRes) {}
+  rpc UpdateTransaction (UpdateTransactionReq) returns (UpdateTransactionRes) {}
 }
 
-message UpdateJobQueueReq{
-    string jobQueueID = 1;
+message UpdateTransactionReq{
+    string TransactionID = 1;
     enum Status {
         SUCCESS = 0;
         FAILED = 1;
@@ -14,6 +14,6 @@ message UpdateJobQueueReq{
     Status status = 2;
 }
 
-message UpdateJobQueueRes{
+message UpdateTransactionRes{
 
 }

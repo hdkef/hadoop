@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/hdkef/hadoop/pkg/helper"
+	"github.com/google/uuid"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 	"github.com/hdkef/hadoop/services/nameNode/service"
 )
@@ -44,10 +44,7 @@ func (n *NodeAllocator) Allocate(nodeStorage []*entity.NodeStorage, replicationT
 	lastBlockSize := fileSize - singleBlockSize*(uint64(blockSplitTarget)-1)
 
 	for i := 0; i < int(blockSplitTarget); i++ {
-		randStr, err := helper.GenerateRandomString()
-		if err != nil {
-			return nil, nil, err
-		}
+		newID := uuid.New()
 
 		size := singleBlockSize
 		if i == int(blockSplitTarget)-1 {
@@ -55,7 +52,7 @@ func (n *NodeAllocator) Allocate(nodeStorage []*entity.NodeStorage, replicationT
 		}
 
 		blocks[i] = &entity.BlockTarget{
-			ID:   randStr,
+			ID:   newID,
 			Size: size,
 		}
 

@@ -1,9 +1,13 @@
 package repository
 
-import "context"
+import (
+	"context"
 
-type Transactions interface {
-	Add(ctx context.Context) error
+	"github.com/hdkef/hadoop/services/nameNode/entity"
+)
+
+type TransactionsRepo interface {
+	Add(ctx context.Context, et *entity.Transactions) error
 	Commit(ctx context.Context)
 	Get(ctx context.Context)
 }

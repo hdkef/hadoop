@@ -10,7 +10,7 @@ func main() {
 	cron := time.NewTicker(1 * time.Second)
 	defer cron.Stop()
 	go func(ch <-chan time.Time) {
-		for t := range ch {
+		for _ = range ch {
 			// clean up expired transaction commit
 
 			// cache dataNode service entry registry

@@ -2,6 +2,6 @@ package entity
 
 type INode struct {
 	id     string
-	blocks []*Block
+	blocks []*BlockTarget
 	hash   string
 }

@@ -1,7 +1,9 @@
 package entity
 
+import "github.com/google/uuid"
+
 type BlockTarget struct {
-	ID      string
+	ID      uuid.UUID
 	Size    uint64
 	NodeIDs []string
 }

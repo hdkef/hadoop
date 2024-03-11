@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/google/uuid"
+	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	"github.com/hdkef/hadoop/services/nameNode/config"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 	"github.com/hdkef/hadoop/services/nameNode/repository"
@@ -14,15 +16,15 @@ import (
 )
 
 type WriteRequestUsecaseImpl struct {
-	metadataRepo    repository.MetadataRepo
-	nodeStorageRepo repository.NodeStorageRepo
-	jobQueueRepo    repository.JobQueueRepo
-	iNodeRepo       repository.INodeRepo
-	serviceRegistry service.ServiceRegistry
-	dataNodeCache   map[string]*entity.ServiceDiscovery
-	mtx             *sync.Mutex
-	cfg             *config.Config
-	nodeAllocator   service.NodeAllocator
+	metadataRepo     repository.MetadataRepo
+	nodeStorageRepo  repository.NodeStorageRepo
+	iNodeRepo        repository.INodeRepo
+	serviceRegistry  service.ServiceRegistry
+	dataNodeCache    map[string]*entity.ServiceDiscovery
+	transactionsRepo repository.TransactionsRepo
+	mtx              *sync.Mutex
+	cfg              *config.Config
+	nodeAllocator    service.NodeAllocator
 }
 
 // CheckDataNode implements usecase.WriteRequestUsecase.
@@ -58,25 +60,31 @@ func (w *WriteRequestUsecaseImpl) CommitCreateRequest(ctx context.Context) error
 }
 
 // WriteRequest implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity.CreateReqDto) (err error) {
+func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity.CreateReqDto) (res []*pkgEt.QueryNodeTarget, err error) {
 
 	replTarget := w.cfg.ReplicationTarget
 	blockSplitTarget := w.cfg.BlockSplitTarget
+	leaseTimeInSec := uint64(w.cfg.MinLeaseTime.Seconds())
 	if dto.BlockSplitTarget != 0 {
 		blockSplitTarget = dto.BlockSplitTarget
 	}
 	if dto.ReplicationTarget != 0 {
 		replTarget = dto.ReplicationTarget
 	}
+	if dto.LeaseTimeInSec != 0 {
+		leaseTimeInSec = dto.LeaseTimeInSec
+	}
 
+	// TODO:
 	// check metadata (cache / postgres)
+	metadata := &entity.Metadata{}
 
 	// check available dataNode (consul)
 	var svd []*entity.ServiceDiscovery
 	if len(w.dataNodeCache) == 0 {
 		svd, err = w.serviceRegistry.GetAll(ctx, "dataNode", "")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		w.mtx.Lock()
 		defer w.mtx.Unlock()
@@ -86,7 +94,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 	}
 
 	if len(svd) < int(replTarget) {
-		return fmt.Errorf("available %d nodes, replication target %d", len(svd), replTarget)
+		return nil, fmt.Errorf("available %d nodes, replication target %d", len(svd), replTarget)
 	}
 
 	// check available space dataNode (query)
@@ -106,16 +114,75 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 	var blockTargets []*entity.BlockTarget
 	blockTargets, nodeStorages, err = w.nodeAllocator.Allocate(nodeStorages, replTarget, blockSplitTarget, dto.FileSize)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	// update leaseStorage in nodeStorage repo
-
-	// generate new job queue
 
 	// create transaction logs
 
+	transactions := &entity.Transactions{}
+	newID := uuid.New()
+	transactions.SetID(newID)
+	transactions.SetMetadata(metadata)
+	transactions.SetAction(entity.TRANSACTION_ACTION_CREATE)
+	transactions.SetLeaseTimeInSecond(leaseTimeInSec)
+
+	transactionNodeInfo := []*entity.TransactionNodeInfo{}
+
+	allBlockIDs := []uuid.UUID{}
+
+	for _, v := range blockTargets {
+		allBlockIDs = append(allBlockIDs, v.ID)
+	}
+
+	for _, v := range blockTargets {
+
+		replNodeTarget := []*pkgEt.NodeTarget{}
+
+		for _, k := range v.NodeIDs {
+			// domain transaction
+			newTr := &entity.TransactionNodeInfo{}
+			newTr.SetAddress(w.dataNodeCache[k].GetAddress())
+			newTr.SetGRPCPort(w.dataNodeCache[k].GetPort())
+			newTr.SetBlockID(v.ID)
+			newTr.SetNodeID(k)
+			newTr.SetFileSize(v.Size)
+			transactionNodeInfo = append(transactionNodeInfo, newTr)
+
+			newNodeTarget := &pkgEt.NodeTarget{}
+			newNodeTarget.SetBlockID(v.ID)
+			newNodeTarget.SetNodeAddress(w.dataNodeCache[k].GetAddress())
+			newNodeTarget.SetNodeGrpcPort(w.dataNodeCache[k].GetPort())
+			newNodeTarget.SetNodeID(k)
+			replNodeTarget = append(replNodeTarget, newNodeTarget)
+		}
+
+		// domain query
+		q := &pkgEt.QueryNodeTarget{}
+		q.SetAllBlockID(allBlockIDs)
+		q.SetINodeID(metadata.GetINodeID())
+		q.SetTransactionID(transactions.GetID())
+		q.SetNodeTargets(replNodeTarget)
+		res = append(res, q)
+	}
+
+	transactions.SetTransactionNodeInfo(transactionNodeInfo)
+
+	err = w.transactionsRepo.Add(ctx, transactions)
+	if err != nil {
+		return nil, err
+	}
+
+	// update leaseStorage in nodeStorage repo
+	for _, v := range nodeStorages {
+		if v.GetLeasedUsedStorageChanged() {
+			err = w.nodeStorageRepo.SetNodeStorage(ctx, v)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	// respond
 
-	panic("unimplemented")
+	return
 }

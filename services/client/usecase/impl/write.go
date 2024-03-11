@@ -28,7 +28,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 	// hash file
 
 	// TODO req write to nameNode
-	queryResult := entity.QueryNodeTarget{}
+	queryResult := pkgEt.QueryNodeTarget{}
 
 	totalBlock := queryResult.GetTotalBlock()
 

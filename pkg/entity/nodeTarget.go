@@ -1,10 +1,12 @@
 package entity
 
+import "github.com/google/uuid"
+
 type NodeTarget struct {
 	nodeID       string
 	nodeAddress  string
 	nodeGrpcPort uint32
-	blockID      string
+	blockID      uuid.UUID
 }
 
 func (n *NodeTarget) GetNodeID() string {
@@ -31,10 +33,10 @@ func (n *NodeTarget) SetNodeGrpcPort(nodePort uint32) {
 	n.nodeGrpcPort = nodePort
 }
 
-func (n *NodeTarget) GetBlockID() string {
+func (n *NodeTarget) GetBlockID() uuid.UUID {
 	return n.blockID
 }
 
-func (n *NodeTarget) SetBlockID(blockID string) {
+func (n *NodeTarget) SetBlockID(blockID uuid.UUID) {
 	n.blockID = blockID
 }

@@ -20,63 +20,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type UpdateJobQueueReq_Status int32
+type UpdateTransactionReq_Status int32
 
 const (
-	UpdateJobQueueReq_SUCCESS UpdateJobQueueReq_Status = 0
-	UpdateJobQueueReq_FAILED  UpdateJobQueueReq_Status = 1
+	UpdateTransactionReq_SUCCESS UpdateTransactionReq_Status = 0
+	UpdateTransactionReq_FAILED  UpdateTransactionReq_Status = 1
 )
 
-// Enum value maps for UpdateJobQueueReq_Status.
+// Enum value maps for UpdateTransactionReq_Status.
 var (
-	UpdateJobQueueReq_Status_name = map[int32]string{
+	UpdateTransactionReq_Status_name = map[int32]string{
 		0: "SUCCESS",
 		1: "FAILED",
 	}
-	UpdateJobQueueReq_Status_value = map[string]int32{
+	UpdateTransactionReq_Status_value = map[string]int32{
 		"SUCCESS": 0,
 		"FAILED":  1,
 	}
 )
 
-func (x UpdateJobQueueReq_Status) Enum() *UpdateJobQueueReq_Status {
-	p := new(UpdateJobQueueReq_Status)
+func (x UpdateTransactionReq_Status) Enum() *UpdateTransactionReq_Status {
+	p := new(UpdateTransactionReq_Status)
 	*p = x
 	return p
 }
 
-func (x UpdateJobQueueReq_Status) String() string {
+func (x UpdateTransactionReq_Status) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (UpdateJobQueueReq_Status) Descriptor() protoreflect.EnumDescriptor {
+func (UpdateTransactionReq_Status) Descriptor() protoreflect.EnumDescriptor {
 	return file_proto_nameNode_nameNode_proto_enumTypes[0].Descriptor()
 }
 
-func (UpdateJobQueueReq_Status) Type() protoreflect.EnumType {
+func (UpdateTransactionReq_Status) Type() protoreflect.EnumType {
 	return &file_proto_nameNode_nameNode_proto_enumTypes[0]
 }
 
-func (x UpdateJobQueueReq_Status) Number() protoreflect.EnumNumber {
+func (x UpdateTransactionReq_Status) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use UpdateJobQueueReq_Status.Descriptor instead.
-func (UpdateJobQueueReq_Status) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use UpdateTransactionReq_Status.Descriptor instead.
+func (UpdateTransactionReq_Status) EnumDescriptor() ([]byte, []int) {
 	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{0, 0}
 }
 
-type UpdateJobQueueReq struct {
+type UpdateTransactionReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	JobQueueID string                   `protobuf:"bytes,1,opt,name=jobQueueID,proto3" json:"jobQueueID,omitempty"`
-	Status     UpdateJobQueueReq_Status `protobuf:"varint,2,opt,name=status,proto3,enum=UpdateJobQueueReq_Status" json:"status,omitempty"`
+	TransactionID string                      `protobuf:"bytes,1,opt,name=TransactionID,proto3" json:"TransactionID,omitempty"`
+	Status        UpdateTransactionReq_Status `protobuf:"varint,2,opt,name=status,proto3,enum=UpdateTransactionReq_Status" json:"status,omitempty"`
 }
 
-func (x *UpdateJobQueueReq) Reset() {
-	*x = UpdateJobQueueReq{}
+func (x *UpdateTransactionReq) Reset() {
+	*x = UpdateTransactionReq{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_proto_nameNode_nameNode_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -84,13 +84,13 @@ func (x *UpdateJobQueueReq) Reset() {
 	}
 }
 
-func (x *UpdateJobQueueReq) String() string {
+func (x *UpdateTransactionReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateJobQueueReq) ProtoMessage() {}
+func (*UpdateTransactionReq) ProtoMessage() {}
 
-func (x *UpdateJobQueueReq) ProtoReflect() protoreflect.Message {
+func (x *UpdateTransactionReq) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_nameNode_nameNode_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,33 +102,33 @@ func (x *UpdateJobQueueReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateJobQueueReq.ProtoReflect.Descriptor instead.
-func (*UpdateJobQueueReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateTransactionReq.ProtoReflect.Descriptor instead.
+func (*UpdateTransactionReq) Descriptor() ([]byte, []int) {
 	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UpdateJobQueueReq) GetJobQueueID() string {
+func (x *UpdateTransactionReq) GetTransactionID() string {
 	if x != nil {
-		return x.JobQueueID
+		return x.TransactionID
 	}
 	return ""
 }
 
-func (x *UpdateJobQueueReq) GetStatus() UpdateJobQueueReq_Status {
+func (x *UpdateTransactionReq) GetStatus() UpdateTransactionReq_Status {
 	if x != nil {
 		return x.Status
 	}
-	return UpdateJobQueueReq_SUCCESS
+	return UpdateTransactionReq_SUCCESS
 }
 
-type UpdateJobQueueRes struct {
+type UpdateTransactionRes struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *UpdateJobQueueRes) Reset() {
-	*x = UpdateJobQueueRes{}
+func (x *UpdateTransactionRes) Reset() {
+	*x = UpdateTransactionRes{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_proto_nameNode_nameNode_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -136,13 +136,13 @@ func (x *UpdateJobQueueRes) Reset() {
 	}
 }
 
-func (x *UpdateJobQueueRes) String() string {
+func (x *UpdateTransactionRes) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateJobQueueRes) ProtoMessage() {}
+func (*UpdateTransactionRes) ProtoMessage() {}
 
-func (x *UpdateJobQueueRes) ProtoReflect() protoreflect.Message {
+func (x *UpdateTransactionRes) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_nameNode_nameNode_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -154,8 +154,8 @@ func (x *UpdateJobQueueRes) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateJobQueueRes.ProtoReflect.Descriptor instead.
-func (*UpdateJobQueueRes) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateTransactionRes.ProtoReflect.Descriptor instead.
+func (*UpdateTransactionRes) Descriptor() ([]byte, []int) {
 	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{1}
 }
 
@@ -164,22 +164,24 @@ var File_proto_nameNode_nameNode_proto protoreflect.FileDescriptor
 var file_proto_nameNode_nameNode_proto_rawDesc = []byte{
 	0x0a, 0x1d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x6e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65,
 	0x2f, 0x6e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22,
-	0x89, 0x01, 0x0a, 0x11, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4a, 0x6f, 0x62, 0x51, 0x75, 0x65,
-	0x75, 0x65, 0x52, 0x65, 0x71, 0x12, 0x1e, 0x0a, 0x0a, 0x6a, 0x6f, 0x62, 0x51, 0x75, 0x65, 0x75,
-	0x65, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x6a, 0x6f, 0x62, 0x51, 0x75,
-	0x65, 0x75, 0x65, 0x49, 0x44, 0x12, 0x31, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x19, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4a, 0x6f,
-	0x62, 0x51, 0x75, 0x65, 0x75, 0x65, 0x52, 0x65, 0x71, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73,
-	0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x21, 0x0a, 0x06, 0x53, 0x74, 0x61, 0x74,
-	0x75, 0x73, 0x12, 0x0b, 0x0a, 0x07, 0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x10, 0x00, 0x12,
-	0x0a, 0x0a, 0x06, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x01, 0x22, 0x13, 0x0a, 0x11, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x4a, 0x6f, 0x62, 0x51, 0x75, 0x65, 0x75, 0x65, 0x52, 0x65, 0x73,
-	0x32, 0x46, 0x0a, 0x08, 0x4e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x3a, 0x0a, 0x0e,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4a, 0x6f, 0x62, 0x51, 0x75, 0x65, 0x75, 0x65, 0x12, 0x12,
-	0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4a, 0x6f, 0x62, 0x51, 0x75, 0x65, 0x75, 0x65, 0x52,
-	0x65, 0x71, 0x1a, 0x12, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4a, 0x6f, 0x62, 0x51, 0x75,
-	0x65, 0x75, 0x65, 0x52, 0x65, 0x73, 0x22, 0x00, 0x42, 0x0c, 0x5a, 0x0a, 0x2e, 0x2f, 0x6e, 0x61,
-	0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x95, 0x01, 0x0a, 0x14, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61,
+	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x12, 0x24, 0x0a, 0x0d, 0x54, 0x72, 0x61, 0x6e,
+	0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x0d, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x12, 0x34,
+	0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1c,
+	0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x52, 0x65, 0x71, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x22, 0x21, 0x0a, 0x06, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x0b,
+	0x0a, 0x07, 0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x10, 0x00, 0x12, 0x0a, 0x0a, 0x06, 0x46,
+	0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x01, 0x22, 0x16, 0x0a, 0x14, 0x55, 0x70, 0x64, 0x61, 0x74,
+	0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x32,
+	0x4f, 0x0a, 0x08, 0x4e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x43, 0x0a, 0x11, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e,
+	0x12, 0x15, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x1a, 0x15, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
+	0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x22, 0x00,
+	0x42, 0x0c, 0x5a, 0x0a, 0x2e, 0x2f, 0x6e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -197,14 +199,14 @@ func file_proto_nameNode_nameNode_proto_rawDescGZIP() []byte {
 var file_proto_nameNode_nameNode_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_proto_nameNode_nameNode_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_nameNode_nameNode_proto_goTypes = []interface{}{
-	(UpdateJobQueueReq_Status)(0), // 0: UpdateJobQueueReq.Status
-	(*UpdateJobQueueReq)(nil),     // 1: UpdateJobQueueReq
-	(*UpdateJobQueueRes)(nil),     // 2: UpdateJobQueueRes
+	(UpdateTransactionReq_Status)(0), // 0: UpdateTransactionReq.Status
+	(*UpdateTransactionReq)(nil),     // 1: UpdateTransactionReq
+	(*UpdateTransactionRes)(nil),     // 2: UpdateTransactionRes
 }
 var file_proto_nameNode_nameNode_proto_depIdxs = []int32{
-	0, // 0: UpdateJobQueueReq.status:type_name -> UpdateJobQueueReq.Status
-	1, // 1: NameNode.UpdateJobQueue:input_type -> UpdateJobQueueReq
-	2, // 2: NameNode.UpdateJobQueue:output_type -> UpdateJobQueueRes
+	0, // 0: UpdateTransactionReq.status:type_name -> UpdateTransactionReq.Status
+	1, // 1: NameNode.UpdateTransaction:input_type -> UpdateTransactionReq
+	2, // 2: NameNode.UpdateTransaction:output_type -> UpdateTransactionRes
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -219,7 +221,7 @@ func file_proto_nameNode_nameNode_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_proto_nameNode_nameNode_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateJobQueueReq); i {
+			switch v := v.(*UpdateTransactionReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -231,7 +233,7 @@ func file_proto_nameNode_nameNode_proto_init() {
 			}
 		}
 		file_proto_nameNode_nameNode_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateJobQueueRes); i {
+			switch v := v.(*UpdateTransactionRes); i {
 			case 0:
 				return &v.state
 			case 1:

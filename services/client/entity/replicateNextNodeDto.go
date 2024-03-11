@@ -1,12 +1,13 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 )
 
 type ReplicateNextNodeDto struct {
-	iNodeID               string
-	blockID               string
+	iNodeID               uuid.UUID
+	blockID               uuid.UUID
 	blocksData            []byte
 	replicationTarget     uint32
 	currentReplicated     uint32
@@ -14,19 +15,19 @@ type ReplicateNextNodeDto struct {
 	nextNode              *pkgEt.NodeInfo
 }
 
-func (r *ReplicateNextNodeDto) GetINodeID() string {
+func (r *ReplicateNextNodeDto) GetINodeID() uuid.UUID {
 	return r.iNodeID
 }
 
-func (r *ReplicateNextNodeDto) SetINodeID(inodeID string) {
+func (r *ReplicateNextNodeDto) SetINodeID(inodeID uuid.UUID) {
 	r.iNodeID = inodeID
 }
 
-func (r *ReplicateNextNodeDto) GetBlockID() string {
+func (r *ReplicateNextNodeDto) GetBlockID() uuid.UUID {
 	return r.blockID
 }
 
-func (r *ReplicateNextNodeDto) SetBlockID(blockID string) {
+func (r *ReplicateNextNodeDto) SetBlockID(blockID uuid.UUID) {
 	r.blockID = blockID
 }
 
