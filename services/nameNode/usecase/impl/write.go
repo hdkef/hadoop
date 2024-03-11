@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -65,19 +66,32 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 	replTarget := w.cfg.ReplicationTarget
 	blockSplitTarget := w.cfg.BlockSplitTarget
 	leaseTimeInSec := uint64(w.cfg.MinLeaseTime.Seconds())
-	if dto.BlockSplitTarget != 0 {
-		blockSplitTarget = dto.BlockSplitTarget
+	if dto.GetBlockSplitTarget() != 0 {
+		blockSplitTarget = dto.GetBlockSplitTarget()
 	}
-	if dto.ReplicationTarget != 0 {
-		replTarget = dto.ReplicationTarget
+	if dto.GetReplicationTarget() != 0 {
+		replTarget = dto.GetReplicationTarget()
 	}
-	if dto.LeaseTimeInSec != 0 {
-		leaseTimeInSec = dto.LeaseTimeInSec
+	if dto.GetLeaseTimeInSec() != 0 {
+		leaseTimeInSec = dto.GetLeaseTimeInSec()
 	}
 
-	// TODO:
-	// check metadata (cache / postgres)
+	// check parentPath
+	exist := w.metadataRepo.CheckPath(ctx, dto.GetParentPath())
+	if !exist {
+		return nil, errors.New("metadata parent path is not exist")
+	}
+
+	// check path
+	exist = w.metadataRepo.CheckPath(ctx, dto.GetPath())
+	if exist {
+		return nil, errors.New("metadata in that path is already exist")
+	}
 	metadata := &entity.Metadata{}
+	metadata.SetPath(dto.GetPath())
+	metadata.SetParentPath(dto.GetParentPath())
+	metadata.SetType(entity.METADATA_TYPE_FILE)
+	metadata.SetINodeID(uuid.New())
 
 	// check available dataNode (consul)
 	var svd []*entity.ServiceDiscovery
@@ -112,7 +126,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 
 	// allocate targetNode per block
 	var blockTargets []*entity.BlockTarget
-	blockTargets, nodeStorages, err = w.nodeAllocator.Allocate(nodeStorages, replTarget, blockSplitTarget, dto.FileSize)
+	blockTargets, nodeStorages, err = w.nodeAllocator.Allocate(nodeStorages, replTarget, blockSplitTarget, dto.GetFileSize())
 	if err != nil {
 		return nil, err
 	}
@@ -120,8 +134,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 	// create transaction logs
 
 	transactions := &entity.Transactions{}
-	newID := uuid.New()
-	transactions.SetID(newID)
+	transactions.SetID(uuid.New())
 	transactions.SetMetadata(metadata)
 	transactions.SetAction(entity.TRANSACTION_ACTION_CREATE)
 	transactions.SetLeaseTimeInSecond(leaseTimeInSec)

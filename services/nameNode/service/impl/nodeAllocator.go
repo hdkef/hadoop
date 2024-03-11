@@ -44,7 +44,6 @@ func (n *NodeAllocator) Allocate(nodeStorage []*entity.NodeStorage, replicationT
 	lastBlockSize := fileSize - singleBlockSize*(uint64(blockSplitTarget)-1)
 
 	for i := 0; i < int(blockSplitTarget); i++ {
-		newID := uuid.New()
 
 		size := singleBlockSize
 		if i == int(blockSplitTarget)-1 {
@@ -52,7 +51,7 @@ func (n *NodeAllocator) Allocate(nodeStorage []*entity.NodeStorage, replicationT
 		}
 
 		blocks[i] = &entity.BlockTarget{
-			ID:   newID,
+			ID:   uuid.New(),
 			Size: size,
 		}
 
