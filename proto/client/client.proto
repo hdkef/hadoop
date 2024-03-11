@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "./client";
+
+service Client {
+    rpc Create(CreateReq) returns (stream CreateRes) {}
+}
+
+message CreateReq {
+    bytes files = 1;
+    string dirTarget = 2;
+}
+
+message CreateRes {
+    uint32 progress = 1;
+}

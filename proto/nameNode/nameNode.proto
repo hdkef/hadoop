@@ -7,15 +7,11 @@ service NameNode {
 
 message UpdateJobQueueReq{
     string jobQueueID = 1;
-    string iNodeID = 2;
-    string blockID = 3;
-    string nodeID = 4;
-    enum UpdateType {
-        REPLICATE_STATUS = 0;
-        JOB_QUEUE_STATUS = 1;
+    enum Status {
+        SUCCESS = 0;
+        FAILED = 1;
     }
-    UpdateType updateType = 5;
-    bool isSuccess = 6;
+    Status status = 2;
 }
 
 message UpdateJobQueueRes{

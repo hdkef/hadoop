@@ -15,7 +15,7 @@ type DataNodeService struct {
 }
 
 // ReplicateNextNode implements service.DataNodeService.
-func (d *DataNodeService) ReplicateNextNode(ctx context.Context, nextNode *pkgEt.NodeInfo, dto *entity.WriteDto) error {
+func (d *DataNodeService) ReplicateNextNode(ctx context.Context, nextNode *pkgEt.NodeInfo, dto *entity.CreateDto) error {
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", nextNode.GetAddress(), nextNode.GetGRPCPort()), grpc.WithInsecure())
 	if err != nil {
 		return err
@@ -23,7 +23,7 @@ func (d *DataNodeService) ReplicateNextNode(ctx context.Context, nextNode *pkgEt
 	defer conn.Close()
 
 	client := dataNodeProto.NewDataNodeClient(conn)
-	_, err = client.Write(ctx, dto.ToProto())
+	_, err = client.Create(ctx, dto.ToProto())
 	if err != nil {
 		return err
 	}

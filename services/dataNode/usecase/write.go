@@ -7,5 +7,6 @@ import (
 )
 
 type WriteUsecase interface {
-	Write(ctx context.Context, dto *entity.WriteDto) error
+	Create(ctx context.Context, dto *entity.CreateDto) error
+	RollBack(ctx context.Context, dto *entity.RollbackDto) error
 }

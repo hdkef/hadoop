@@ -1,11 +1,11 @@
 package entity
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/hdkef/hadoop/pkg/helper"
 )
 
 type INodeBlockID struct {
@@ -45,15 +45,13 @@ func (i *INodeBlockID) GetKey() string {
 }
 
 func (i *INodeBlockID) Write(root string, binaryData []byte) error {
-	randomBytes := make([]byte, 18)
 
-	_, err := rand.Read(randomBytes)
+	randomStr, err := helper.GenerateRandomString()
 	if err != nil {
-		fmt.Println("Error generating random string:", err)
 		return err
 	}
 
-	i.dirPath = fmt.Sprintf("%s/%s.bin", root, hex.EncodeToString(randomBytes))
+	i.dirPath = fmt.Sprintf("%s/%s.bin", root, randomStr)
 
 	err = os.WriteFile(i.dirPath, binaryData, 0644)
 	if err != nil {

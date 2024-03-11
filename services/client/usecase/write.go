@@ -7,5 +7,5 @@ import (
 )
 
 type WriteUsecase interface {
-	Write(ctx context.Context, dto entity.WriteRequestDto) error
+	Create(ctx context.Context, dto *entity.CreateDto, chProgress chan entity.CreateStreamRes)
 }

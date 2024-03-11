@@ -8,18 +8,18 @@ import (
 )
 
 // Write implements dataNode.DataNodeServer.
-func (g *handler) Write(ctx context.Context, req *dataNodeProto.WriteReq) (*dataNodeProto.WriteRes, error) {
+func (g *handler) Write(ctx context.Context, req *dataNodeProto.CreateReq) (*dataNodeProto.CreateRes, error) {
 
-	// create domain write dto
-	writeDto := &entity.WriteDto{}
-	writeDto.NewFromProto(req)
+	// create domain create dto
+	createDto := &entity.CreateDto{}
+	createDto.NewFromProto(req)
 
 	// execute logic
-	err := g.writeUC.Write(ctx, writeDto)
+	err := g.writeUC.Create(ctx, createDto)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &dataNodeProto.WriteRes{}, nil
+	return &dataNodeProto.CreateRes{}, nil
 }

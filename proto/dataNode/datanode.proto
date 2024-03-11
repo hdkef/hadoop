@@ -2,7 +2,7 @@ syntax = "proto3";
 option go_package = "./dataNode";
 
 service DataNode {
-  rpc Write (WriteReq) returns (WriteRes) {}
+  rpc Create (CreateReq) returns (CreateRes) {}
 }
 
 message NodeInfo{
@@ -17,25 +17,24 @@ message NodeInfo{
   NodeReplicationStatus replicationStatus = 4;
 }
 
-message WriteReq {
+message CreateReq {
   string iNodeID = 1;
   string blockID = 2;
   bytes blocksData = 3;
   uint32 replicationTarget = 4;
   uint32 currentReplicated = 5;
   repeated NodeInfo replicationNodeTarget = 6;
-  string jobQueueID = 7;
 }
 
-message WriteResDetail {
+message CreateResDetail {
   string description = 1;
 }
 
-message WriteRes {
-  enum WriteStatus {
+message CreateRes {
+  enum CreateStatus {
     SUCCESS = 0;
     FAILED = 1;
   }
-  WriteStatus status = 1;
-  WriteResDetail detail = 2;
+  CreateStatus status = 1;
+  CreateResDetail detail = 2;
 }

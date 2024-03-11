@@ -5,85 +5,76 @@ import (
 	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
 )
 
-type WriteDto struct {
+type CreateDto struct {
 	inodeID               string
 	blockID               string
 	blocksData            []byte
 	replicationTarget     uint32
 	currentReplicated     uint32
 	replicationNodeTarget []*pkgEt.NodeInfo
-	jobQueueID            string
 }
 
-// Set methods allow setting individual fields of WriteDto
-func (w *WriteDto) SetInodeID(inodeID string) {
+// Set methods allow setting individual fields of CreateDto
+func (w *CreateDto) SetInodeID(inodeID string) {
 	w.inodeID = inodeID
 }
 
-func (w *WriteDto) SetBlockID(blockID string) {
+func (w *CreateDto) SetBlockID(blockID string) {
 	w.blockID = blockID
 }
 
-func (w *WriteDto) SetBlocksData(blocksData []byte) {
+func (w *CreateDto) SetBlocksData(blocksData []byte) {
 	w.blocksData = blocksData
 }
 
-func (w *WriteDto) SetReplicationTarget(replicationTarget uint32) {
+func (w *CreateDto) SetReplicationTarget(replicationTarget uint32) {
 	w.replicationTarget = replicationTarget
 }
 
-func (w *WriteDto) SetCurrentReplicated(currentReplicated uint32) {
+func (w *CreateDto) SetCurrentReplicated(currentReplicated uint32) {
 	w.currentReplicated = currentReplicated
 }
 
-func (w *WriteDto) SetReplicationNodeTarget(replicationNodeTarget []*pkgEt.NodeInfo) {
+func (w *CreateDto) SetReplicationNodeTarget(replicationNodeTarget []*pkgEt.NodeInfo) {
 	w.replicationNodeTarget = replicationNodeTarget
 }
 
-func (w *WriteDto) SetJobQueueID(jobQueueID string) {
-	w.jobQueueID = jobQueueID
-}
-
-// Get methods allow getting individual fields of WriteDto
-func (w *WriteDto) GetInodeID() string {
+// Get methods allow getting individual fields of CreateDto
+func (w *CreateDto) GetInodeID() string {
 	return w.inodeID
 }
 
-func (w *WriteDto) GetBlockID() string {
+func (w *CreateDto) GetBlockID() string {
 	return w.blockID
 }
 
-func (w *WriteDto) GetBlocksData() []byte {
+func (w *CreateDto) GetBlocksData() []byte {
 	return w.blocksData
 }
 
-func (w *WriteDto) GetReplicationTarget() uint32 {
+func (w *CreateDto) GetReplicationTarget() uint32 {
 	return w.replicationTarget
 }
 
-func (w *WriteDto) GetCurrentReplicated() uint32 {
+func (w *CreateDto) GetCurrentReplicated() uint32 {
 	return w.currentReplicated
 }
 
-func (w *WriteDto) GetReplicationNodeTarget() []*pkgEt.NodeInfo {
+func (w *CreateDto) GetReplicationNodeTarget() []*pkgEt.NodeInfo {
 	return w.replicationNodeTarget
 }
 
-func (w *WriteDto) GetJobQueueID() string {
-	return w.jobQueueID
-}
-
-func (w *WriteDto) IncrementCurrentReplicated() {
+func (w *CreateDto) IncrementCurrentReplicated() {
 	w.currentReplicated++
 }
 
-func (w *WriteDto) UpdateNodeInfo(idx int, UpdateNodeInfo *pkgEt.NodeInfo) {
+func (w *CreateDto) UpdateNodeInfo(idx int, UpdateNodeInfo *pkgEt.NodeInfo) {
 	if idx < len(w.replicationNodeTarget) {
 		w.replicationNodeTarget[idx] = UpdateNodeInfo
 	}
 }
 
-func (w *WriteDto) NextReplicaNode() (*pkgEt.NodeInfo, bool) {
+func (w *CreateDto) NextReplicaNode() (*pkgEt.NodeInfo, bool) {
 	for _, v := range w.replicationNodeTarget {
 		if !v.IsSuccess() && !v.IsFailed() {
 
@@ -93,14 +84,13 @@ func (w *WriteDto) NextReplicaNode() (*pkgEt.NodeInfo, bool) {
 	return nil, false
 }
 
-func (writeDto *WriteDto) NewFromProto(req *dataNodeProto.WriteReq) {
+func (CreateDto *CreateDto) NewFromProto(req *dataNodeProto.CreateReq) {
 
-	writeDto.SetInodeID(req.GetINodeID())
-	writeDto.SetBlockID(req.GetBlockID())
-	writeDto.SetBlocksData(req.GetBlocksData())
-	writeDto.SetReplicationTarget(req.GetReplicationTarget())
-	writeDto.SetCurrentReplicated(req.GetCurrentReplicated())
-	writeDto.SetJobQueueID(req.GetJobQueueID())
+	CreateDto.SetInodeID(req.GetINodeID())
+	CreateDto.SetBlockID(req.GetBlockID())
+	CreateDto.SetBlocksData(req.GetBlocksData())
+	CreateDto.SetReplicationTarget(req.GetReplicationTarget())
+	CreateDto.SetCurrentReplicated(req.GetCurrentReplicated())
 
 	replicationNodeTarget := []*pkgEt.NodeInfo{}
 
@@ -113,14 +103,14 @@ func (writeDto *WriteDto) NewFromProto(req *dataNodeProto.WriteReq) {
 		replicationNodeTarget = append(replicationNodeTarget, &node)
 	}
 
-	writeDto.SetReplicationNodeTarget(replicationNodeTarget)
+	CreateDto.SetReplicationNodeTarget(replicationNodeTarget)
 }
 
-func (writeDto *WriteDto) ToProto() *dataNodeProto.WriteReq {
+func (CreateDto *CreateDto) ToProto() *dataNodeProto.CreateReq {
 
 	nodeTarget := []*dataNodeProto.NodeInfo{}
 
-	for _, v := range writeDto.replicationNodeTarget {
+	for _, v := range CreateDto.replicationNodeTarget {
 		nodeTarget = append(nodeTarget, &dataNodeProto.NodeInfo{
 			NodeID:            v.GetNodeID(),
 			Address:           v.GetAddress(),
@@ -129,12 +119,11 @@ func (writeDto *WriteDto) ToProto() *dataNodeProto.WriteReq {
 		})
 	}
 
-	proto := &dataNodeProto.WriteReq{
-		INodeID:               writeDto.inodeID,
-		BlockID:               writeDto.blockID,
-		BlocksData:            writeDto.blocksData,
-		ReplicationTarget:     writeDto.replicationTarget,
-		JobQueueID:            writeDto.jobQueueID,
+	proto := &dataNodeProto.CreateReq{
+		INodeID:               CreateDto.inodeID,
+		BlockID:               CreateDto.blockID,
+		BlocksData:            CreateDto.blocksData,
+		ReplicationTarget:     CreateDto.replicationTarget,
 		ReplicationNodeTarget: nodeTarget,
 	}
 

@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DataNode_Write_FullMethodName = "/DataNode/Write"
+	DataNode_Create_FullMethodName = "/DataNode/Create"
 )
 
 // DataNodeClient is the client API for DataNode service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DataNodeClient interface {
-	Write(ctx context.Context, in *WriteReq, opts ...grpc.CallOption) (*WriteRes, error)
+	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRes, error)
 }
 
 type dataNodeClient struct {
@@ -37,9 +37,9 @@ func NewDataNodeClient(cc grpc.ClientConnInterface) DataNodeClient {
 	return &dataNodeClient{cc}
 }
 
-func (c *dataNodeClient) Write(ctx context.Context, in *WriteReq, opts ...grpc.CallOption) (*WriteRes, error) {
-	out := new(WriteRes)
-	err := c.cc.Invoke(ctx, DataNode_Write_FullMethodName, in, out, opts...)
+func (c *dataNodeClient) Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRes, error) {
+	out := new(CreateRes)
+	err := c.cc.Invoke(ctx, DataNode_Create_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *dataNodeClient) Write(ctx context.Context, in *WriteReq, opts ...grpc.C
 // All implementations must embed UnimplementedDataNodeServer
 // for forward compatibility
 type DataNodeServer interface {
-	Write(context.Context, *WriteReq) (*WriteRes, error)
+	Create(context.Context, *CreateReq) (*CreateRes, error)
 	mustEmbedUnimplementedDataNodeServer()
 }
 
@@ -58,8 +58,8 @@ type DataNodeServer interface {
 type UnimplementedDataNodeServer struct {
 }
 
-func (UnimplementedDataNodeServer) Write(context.Context, *WriteReq) (*WriteRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
+func (UnimplementedDataNodeServer) Create(context.Context, *CreateReq) (*CreateRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedDataNodeServer) mustEmbedUnimplementedDataNodeServer() {}
 
@@ -74,20 +74,20 @@ func RegisterDataNodeServer(s grpc.ServiceRegistrar, srv DataNodeServer) {
 	s.RegisterService(&DataNode_ServiceDesc, srv)
 }
 
-func _DataNode_Write_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WriteReq)
+func _DataNode_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DataNodeServer).Write(ctx, in)
+		return srv.(DataNodeServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DataNode_Write_FullMethodName,
+		FullMethod: DataNode_Create_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DataNodeServer).Write(ctx, req.(*WriteReq))
+		return srv.(DataNodeServer).Create(ctx, req.(*CreateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,8 +100,8 @@ var DataNode_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*DataNodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Write",
-			Handler:    _DataNode_Write_Handler,
+			MethodName: "Create",
+			Handler:    _DataNode_Create_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

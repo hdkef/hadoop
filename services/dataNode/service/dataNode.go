@@ -8,5 +8,5 @@ import (
 )
 
 type DataNodeService interface {
-	ReplicateNextNode(ctx context.Context, nextNode *pkgEt.NodeInfo, dto *entity.WriteDto) error
+	ReplicateNextNode(ctx context.Context, nextNode *pkgEt.NodeInfo, dto *entity.CreateDto) error
 }

@@ -8,18 +8,14 @@ import (
 	"github.com/hdkef/hadoop/services/dataNode/entity"
 	"github.com/hdkef/hadoop/services/dataNode/service"
 	"github.com/hdkef/hadoop/services/dataNode/usecase"
-
-	pkgRepo "github.com/hdkef/hadoop/pkg/repository"
 )
 
 type WriteUsecaseImpl struct {
 	cfg             *config.Config
-	kvRepo          pkgRepo.KeyValueRepository
 	dataNodeService service.DataNodeService
-	nameNodeService service.NameNodeService
 }
 
-func NewWriteUsecase(cfg *config.Config, kvRepo pkgRepo.KeyValueRepository, dataNodeService service.DataNodeService, nameNodeService service.NameNodeService) usecase.WriteUsecase {
+func NewWriteUsecase(cfg *config.Config, dataNodeService service.DataNodeService) usecase.WriteUsecase {
 
 	if cfg == nil {
 		panic("nil config")
@@ -27,13 +23,12 @@ func NewWriteUsecase(cfg *config.Config, kvRepo pkgRepo.KeyValueRepository, data
 
 	return &WriteUsecaseImpl{
 		cfg:             cfg,
-		kvRepo:          kvRepo,
 		dataNodeService: dataNodeService,
 	}
 }
 
 // Write implements usecase.WriteUsecase.
-func (w *WriteUsecaseImpl) Write(ctx context.Context, dto *entity.WriteDto) error {
+func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto) error {
 
 	iNodeBlockId := entity.INodeBlockID{}
 	iNodeBlockId.SetINodeID(dto.GetInodeID())
@@ -41,18 +36,6 @@ func (w *WriteUsecaseImpl) Write(ctx context.Context, dto *entity.WriteDto) erro
 
 	// write file to storage
 	err := iNodeBlockId.Write(w.cfg.StorageRoot, dto.GetBlocksData())
-	if err != nil {
-		return err
-	}
-
-	// create new k,v store inode_blockid
-	err = w.kvRepo.Set(ctx, iNodeBlockId.GetKey(), iNodeBlockId.ToJSON(), nil)
-	if err != nil {
-		return err
-	}
-
-	// update jobQueue nameNode
-	err = w.nameNodeService.UpdateJobQueue(ctx, dto, true)
 	if err != nil {
 		return err
 	}
