@@ -74,6 +74,7 @@ func (n *NodeAllocator) Allocate(nodeStorage []*entity.NodeStorage, replicationT
 				nodeStorage[i2].SetAllocated()
 				// assign node
 				nodeStorage[i2].IncrementLeaseStorage(size)
+				nodeStorage[i2].SetLeasedUsedStorageChanged()
 				blocks[i].NodeIDs = append(blocks[i].NodeIDs, taken.GetNodeID())
 				allocatedNodeId[taken.GetNodeID()] = true
 			} else {
@@ -90,6 +91,7 @@ func (n *NodeAllocator) Allocate(nodeStorage []*entity.NodeStorage, replicationT
 						nodeStorage[nextIdx].SetAllocated()
 						// assign node
 						nodeStorage[nextIdx].IncrementLeaseStorage(size)
+						nodeStorage[nextIdx].SetLeasedUsedStorageChanged()
 						blocks[i].NodeIDs = append(blocks[i].NodeIDs, taken.GetNodeID())
 						allocatedNodeId[taken.GetNodeID()] = true
 						break

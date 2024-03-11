@@ -1,12 +1,13 @@
 package entity
 
 type NodeStorage struct {
-	nodeID                string
-	leaseUsedStorage      uint64
-	actualUsedStorage     uint64
-	totalStorage          uint64
-	allocatedHelper       bool
-	allocatedAmountHelper uint32
+	nodeID                  string
+	leaseUsedStorage        uint64
+	actualUsedStorage       uint64
+	totalStorage            uint64
+	allocatedHelper         bool
+	allocatedAmountHelper   uint32
+	leaseUsedStorageChanged bool
 }
 
 // Setter methods
@@ -62,6 +63,14 @@ func (n *NodeStorage) GetAllocated() uint32 {
 
 func (n *NodeStorage) SetTotalStorage(f uint64) {
 	n.totalStorage = f
+}
+
+func (n *NodeStorage) SetLeasedUsedStorageChanged() {
+	n.leaseUsedStorageChanged = true
+}
+
+func (n *NodeStorage) GetLeasedUsedStorageChanged() bool {
+	return n.leaseUsedStorageChanged
 }
 
 func (n *NodeStorage) GetTotalStorage() uint64 {

@@ -39,9 +39,9 @@ func (w *WriteRequestUsecaseImpl) CheckDataNode(ctx context.Context) error {
 	return nil
 }
 
-func NewWriteUsecase() usecase.WriteRequestUsecase {
+func NewWriteUsecase(dataNodeCache map[string]*entity.ServiceDiscovery) usecase.WriteRequestUsecase {
 	return &WriteRequestUsecaseImpl{
-		dataNodeCache: make(map[string]*entity.ServiceDiscovery),
+		dataNodeCache: dataNodeCache,
 		mtx:           &sync.Mutex{},
 		nodeAllocator: svcImpl.NewNodeAllocator(),
 	}
@@ -103,14 +103,19 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 	}
 
 	// allocate targetNode per block
-	_, _, err = w.nodeAllocator.Allocate(nodeStorages, replTarget, blockSplitTarget, dto.FileSize)
+	var blockTargets []*entity.BlockTarget
+	blockTargets, nodeStorages, err = w.nodeAllocator.Allocate(nodeStorages, replTarget, blockSplitTarget, dto.FileSize)
 	if err != nil {
 		return err
 	}
 
-	// generate new job queue (dragonFly)
+	// update leaseStorage in nodeStorage repo
+
+	// generate new job queue
 
 	// create transaction logs
+
+	// respond
 
 	panic("unimplemented")
 }
