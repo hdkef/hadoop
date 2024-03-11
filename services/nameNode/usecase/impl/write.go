@@ -100,6 +100,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 		allBlockIDs = append(allBlockIDs, v.ID)
 	}
 
+	w.mtx.Lock()
 	for _, v := range blockTargets {
 
 		replNodeTarget := []*pkgEt.NodeTarget{}
@@ -121,6 +122,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 		q.SetNodeTargets(replNodeTarget)
 		res = append(res, q)
 	}
+	w.mtx.Unlock()
 
 	transactions.SetBlockTarget(blockTargets)
 
