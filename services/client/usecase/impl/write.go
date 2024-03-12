@@ -43,7 +43,9 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 
 	errGroup := errgroup.Group{}
 
-	for i := 0; i < totalBlock; i++ {
+	for idx := 0; idx < totalBlock; idx++ {
+
+		i := idx
 
 		errGroup.Go(func() error {
 
