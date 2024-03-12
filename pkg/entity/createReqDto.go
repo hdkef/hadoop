@@ -1,6 +1,10 @@
 package entity
 
-import "path/filepath"
+import (
+	"path/filepath"
+
+	nameNodeProto "github.com/hdkef/hadoop/proto/nameNode"
+)
 
 type CreateReqDto struct {
 	replicationTarget uint32
@@ -63,4 +67,16 @@ func (c *CreateReqDto) GetHash() string {
 
 func (c *CreateReqDto) SetHash(val string) {
 	c.hash = val
+}
+
+func (c *CreateReqDto) FromProto(req *nameNodeProto.QueryNodeTargetCreateReq) error {
+
+	c.blockSplitTarget = req.GetBlockSplitTarget()
+	c.fileSize = req.GetFileSize()
+	c.replicationTarget = req.GetReplicationTarget()
+	c.hash = req.GetHash()
+	c.path = req.GetPath()
+	c.leaseTimeInSec = req.GetLeaseTimeInSec()
+
+	return nil
 }

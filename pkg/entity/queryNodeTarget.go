@@ -1,6 +1,9 @@
 package entity
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	nameNodeProto "github.com/hdkef/hadoop/proto/nameNode"
+)
 
 type QueryNodeTarget struct {
 	replicationFactor uint32
@@ -58,4 +61,52 @@ func (q *QueryNodeTarget) SetINodeID(iNodeID uuid.UUID) {
 
 func (q *QueryNodeTarget) SetNodeTargets(nodeTargets []*NodeTarget) {
 	q.nodeTargets = nodeTargets
+}
+
+func (q *QueryNodeTarget) ToProto() (*nameNodeProto.QueryNodeTarget, error) {
+
+	nodeTarget := []*nameNodeProto.NodeTarget{}
+
+	for _, v := range q.nodeTargets {
+
+		bId, err := v.blockID.MarshalBinary()
+		if err != nil {
+			return nil, err
+		}
+
+		nodeTarget = append(nodeTarget, &nameNodeProto.NodeTarget{
+			NodeID:       v.nodeID,
+			NodeAddress:  v.nodeAddress,
+			NodeGrpcPort: v.nodeGrpcPort,
+			BlockID:      bId,
+		})
+	}
+
+	allBlocksID := [][]byte{}
+
+	for _, v := range q.allBlockID {
+		bId, err := v.MarshalBinary()
+		if err != nil {
+			return nil, err
+		}
+		allBlocksID = append(allBlocksID, bId)
+	}
+
+	trId, err := q.transactionID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	iNodeId, err := q.iNodeID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	return &nameNodeProto.QueryNodeTarget{
+		ReplicationFactor: q.replicationFactor,
+		AllBlockId:        allBlocksID,
+		TransactionID:     trId,
+		INodeID:           iNodeId,
+		NodeTarget:        nodeTarget,
+	}, nil
 }

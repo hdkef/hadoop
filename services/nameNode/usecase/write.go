@@ -8,7 +8,7 @@ import (
 )
 
 type WriteRequestUsecase interface {
-	CreateRequest(ctx context.Context, dto *pkgEt.CreateReqDto) ([]*pkgEt.QueryNodeTarget, error)
+	CreateRequest(ctx context.Context, dto *pkgEt.CreateReqDto) (*pkgEt.QueryNodeTarget, error)
 	CommitTransactions(ctx context.Context, transactionsID uuid.UUID) error
 	RollbackTransactions(ctx context.Context, transactionsID uuid.UUID) error
 }

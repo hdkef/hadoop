@@ -11,7 +11,7 @@ import (
 )
 
 // WriteRequest implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.CreateReqDto) (res []*pkgEt.QueryNodeTarget, err error) {
+func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.CreateReqDto) (res *pkgEt.QueryNodeTarget, err error) {
 
 	replTarget := w.cfg.ReplicationTarget
 	blockSplitTarget := w.cfg.BlockSplitTarget
@@ -102,9 +102,8 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 	}
 
 	w.mtx.Lock()
+	replNodeTarget := []*pkgEt.NodeTarget{}
 	for _, v := range blockTargets {
-
-		replNodeTarget := []*pkgEt.NodeTarget{}
 
 		for _, k := range v.NodeIDs {
 			newNodeTarget := &pkgEt.NodeTarget{}
@@ -114,15 +113,6 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 			newNodeTarget.SetNodeID(k)
 			replNodeTarget = append(replNodeTarget, newNodeTarget)
 		}
-
-		// domain query
-		q := &pkgEt.QueryNodeTarget{}
-		q.SetAllBlockID(allBlockIDs)
-		q.SetINodeID(metadata.GetINodeID())
-		q.SetTransactionID(transactions.GetID())
-		q.SetNodeTargets(replNodeTarget)
-		q.SetReplicationFactor(replTarget)
-		res = append(res, q)
 	}
 	w.mtx.Unlock()
 
@@ -144,6 +134,12 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 	}
 
 	// respond
+	// domain query
+	res.SetAllBlockID(allBlockIDs)
+	res.SetINodeID(metadata.GetINodeID())
+	res.SetTransactionID(transactions.GetID())
+	res.SetNodeTargets(replNodeTarget)
+	res.SetReplicationFactor(replTarget)
 
 	return
 }
