@@ -20,63 +20,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type UpdateTransactionReq_Status int32
+type CommitTransactionsReq_Status int32
 
 const (
-	UpdateTransactionReq_SUCCESS UpdateTransactionReq_Status = 0
-	UpdateTransactionReq_FAILED  UpdateTransactionReq_Status = 1
+	CommitTransactionsReq_SUCCESS CommitTransactionsReq_Status = 0
+	CommitTransactionsReq_FAILED  CommitTransactionsReq_Status = 1
 )
 
-// Enum value maps for UpdateTransactionReq_Status.
+// Enum value maps for CommitTransactionsReq_Status.
 var (
-	UpdateTransactionReq_Status_name = map[int32]string{
+	CommitTransactionsReq_Status_name = map[int32]string{
 		0: "SUCCESS",
 		1: "FAILED",
 	}
-	UpdateTransactionReq_Status_value = map[string]int32{
+	CommitTransactionsReq_Status_value = map[string]int32{
 		"SUCCESS": 0,
 		"FAILED":  1,
 	}
 )
 
-func (x UpdateTransactionReq_Status) Enum() *UpdateTransactionReq_Status {
-	p := new(UpdateTransactionReq_Status)
+func (x CommitTransactionsReq_Status) Enum() *CommitTransactionsReq_Status {
+	p := new(CommitTransactionsReq_Status)
 	*p = x
 	return p
 }
 
-func (x UpdateTransactionReq_Status) String() string {
+func (x CommitTransactionsReq_Status) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (UpdateTransactionReq_Status) Descriptor() protoreflect.EnumDescriptor {
+func (CommitTransactionsReq_Status) Descriptor() protoreflect.EnumDescriptor {
 	return file_proto_nameNode_nameNode_proto_enumTypes[0].Descriptor()
 }
 
-func (UpdateTransactionReq_Status) Type() protoreflect.EnumType {
+func (CommitTransactionsReq_Status) Type() protoreflect.EnumType {
 	return &file_proto_nameNode_nameNode_proto_enumTypes[0]
 }
 
-func (x UpdateTransactionReq_Status) Number() protoreflect.EnumNumber {
+func (x CommitTransactionsReq_Status) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use UpdateTransactionReq_Status.Descriptor instead.
-func (UpdateTransactionReq_Status) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use CommitTransactionsReq_Status.Descriptor instead.
+func (CommitTransactionsReq_Status) EnumDescriptor() ([]byte, []int) {
 	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{0, 0}
 }
 
-type UpdateTransactionReq struct {
+type CommitTransactionsReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	TransactionID string                      `protobuf:"bytes,1,opt,name=TransactionID,proto3" json:"TransactionID,omitempty"`
-	Status        UpdateTransactionReq_Status `protobuf:"varint,2,opt,name=status,proto3,enum=UpdateTransactionReq_Status" json:"status,omitempty"`
+	TransactionID []byte                       `protobuf:"bytes,1,opt,name=TransactionID,proto3" json:"TransactionID,omitempty"`
+	Status        CommitTransactionsReq_Status `protobuf:"varint,2,opt,name=status,proto3,enum=CommitTransactionsReq_Status" json:"status,omitempty"`
 }
 
-func (x *UpdateTransactionReq) Reset() {
-	*x = UpdateTransactionReq{}
+func (x *CommitTransactionsReq) Reset() {
+	*x = CommitTransactionsReq{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_proto_nameNode_nameNode_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -84,13 +84,13 @@ func (x *UpdateTransactionReq) Reset() {
 	}
 }
 
-func (x *UpdateTransactionReq) String() string {
+func (x *CommitTransactionsReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateTransactionReq) ProtoMessage() {}
+func (*CommitTransactionsReq) ProtoMessage() {}
 
-func (x *UpdateTransactionReq) ProtoReflect() protoreflect.Message {
+func (x *CommitTransactionsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_nameNode_nameNode_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,33 +102,33 @@ func (x *UpdateTransactionReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateTransactionReq.ProtoReflect.Descriptor instead.
-func (*UpdateTransactionReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use CommitTransactionsReq.ProtoReflect.Descriptor instead.
+func (*CommitTransactionsReq) Descriptor() ([]byte, []int) {
 	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UpdateTransactionReq) GetTransactionID() string {
+func (x *CommitTransactionsReq) GetTransactionID() []byte {
 	if x != nil {
 		return x.TransactionID
 	}
-	return ""
+	return nil
 }
 
-func (x *UpdateTransactionReq) GetStatus() UpdateTransactionReq_Status {
+func (x *CommitTransactionsReq) GetStatus() CommitTransactionsReq_Status {
 	if x != nil {
 		return x.Status
 	}
-	return UpdateTransactionReq_SUCCESS
+	return CommitTransactionsReq_SUCCESS
 }
 
-type UpdateTransactionRes struct {
+type CommitTransactionsRes struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *UpdateTransactionRes) Reset() {
-	*x = UpdateTransactionRes{}
+func (x *CommitTransactionsRes) Reset() {
+	*x = CommitTransactionsRes{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_proto_nameNode_nameNode_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -136,13 +136,13 @@ func (x *UpdateTransactionRes) Reset() {
 	}
 }
 
-func (x *UpdateTransactionRes) String() string {
+func (x *CommitTransactionsRes) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateTransactionRes) ProtoMessage() {}
+func (*CommitTransactionsRes) ProtoMessage() {}
 
-func (x *UpdateTransactionRes) ProtoReflect() protoreflect.Message {
+func (x *CommitTransactionsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_nameNode_nameNode_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -154,9 +154,246 @@ func (x *UpdateTransactionRes) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateTransactionRes.ProtoReflect.Descriptor instead.
-func (*UpdateTransactionRes) Descriptor() ([]byte, []int) {
+// Deprecated: Use CommitTransactionsRes.ProtoReflect.Descriptor instead.
+func (*CommitTransactionsRes) Descriptor() ([]byte, []int) {
 	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{1}
+}
+
+type QueryNodeTargetCreateReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ReplicationTarget uint32 `protobuf:"varint,1,opt,name=replicationTarget,proto3" json:"replicationTarget,omitempty"`
+	BlockSplitTarget  uint32 `protobuf:"varint,2,opt,name=blockSplitTarget,proto3" json:"blockSplitTarget,omitempty"`
+	FileSize          uint64 `protobuf:"varint,3,opt,name=fileSize,proto3" json:"fileSize,omitempty"`
+	LeaseTimeInSec    uint64 `protobuf:"varint,4,opt,name=leaseTimeInSec,proto3" json:"leaseTimeInSec,omitempty"`
+	Path              string `protobuf:"bytes,5,opt,name=path,proto3" json:"path,omitempty"`
+	Hash              string `protobuf:"bytes,6,opt,name=hash,proto3" json:"hash,omitempty"`
+}
+
+func (x *QueryNodeTargetCreateReq) Reset() {
+	*x = QueryNodeTargetCreateReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_nameNode_nameNode_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryNodeTargetCreateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryNodeTargetCreateReq) ProtoMessage() {}
+
+func (x *QueryNodeTargetCreateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_nameNode_nameNode_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryNodeTargetCreateReq.ProtoReflect.Descriptor instead.
+func (*QueryNodeTargetCreateReq) Descriptor() ([]byte, []int) {
+	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *QueryNodeTargetCreateReq) GetReplicationTarget() uint32 {
+	if x != nil {
+		return x.ReplicationTarget
+	}
+	return 0
+}
+
+func (x *QueryNodeTargetCreateReq) GetBlockSplitTarget() uint32 {
+	if x != nil {
+		return x.BlockSplitTarget
+	}
+	return 0
+}
+
+func (x *QueryNodeTargetCreateReq) GetFileSize() uint64 {
+	if x != nil {
+		return x.FileSize
+	}
+	return 0
+}
+
+func (x *QueryNodeTargetCreateReq) GetLeaseTimeInSec() uint64 {
+	if x != nil {
+		return x.LeaseTimeInSec
+	}
+	return 0
+}
+
+func (x *QueryNodeTargetCreateReq) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *QueryNodeTargetCreateReq) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
+type NodeTarget struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	NodeID       string `protobuf:"bytes,1,opt,name=nodeID,proto3" json:"nodeID,omitempty"`
+	NodeAddress  string `protobuf:"bytes,2,opt,name=nodeAddress,proto3" json:"nodeAddress,omitempty"`
+	NodeGrpcPort uint32 `protobuf:"varint,3,opt,name=nodeGrpcPort,proto3" json:"nodeGrpcPort,omitempty"`
+	BlockID      []byte `protobuf:"bytes,4,opt,name=blockID,proto3" json:"blockID,omitempty"`
+}
+
+func (x *NodeTarget) Reset() {
+	*x = NodeTarget{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_nameNode_nameNode_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *NodeTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeTarget) ProtoMessage() {}
+
+func (x *NodeTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_nameNode_nameNode_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeTarget.ProtoReflect.Descriptor instead.
+func (*NodeTarget) Descriptor() ([]byte, []int) {
+	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *NodeTarget) GetNodeID() string {
+	if x != nil {
+		return x.NodeID
+	}
+	return ""
+}
+
+func (x *NodeTarget) GetNodeAddress() string {
+	if x != nil {
+		return x.NodeAddress
+	}
+	return ""
+}
+
+func (x *NodeTarget) GetNodeGrpcPort() uint32 {
+	if x != nil {
+		return x.NodeGrpcPort
+	}
+	return 0
+}
+
+func (x *NodeTarget) GetBlockID() []byte {
+	if x != nil {
+		return x.BlockID
+	}
+	return nil
+}
+
+type QueryNodeTarget struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ReplicationFactor uint32        `protobuf:"varint,1,opt,name=replicationFactor,proto3" json:"replicationFactor,omitempty"`
+	AllBlockId        [][]byte      `protobuf:"bytes,2,rep,name=allBlockId,proto3" json:"allBlockId,omitempty"`
+	TransactionID     []byte        `protobuf:"bytes,3,opt,name=transactionID,proto3" json:"transactionID,omitempty"`
+	INodeID           []byte        `protobuf:"bytes,4,opt,name=iNodeID,proto3" json:"iNodeID,omitempty"`
+	NodeTarget        []*NodeTarget `protobuf:"bytes,5,rep,name=nodeTarget,proto3" json:"nodeTarget,omitempty"`
+}
+
+func (x *QueryNodeTarget) Reset() {
+	*x = QueryNodeTarget{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_nameNode_nameNode_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryNodeTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryNodeTarget) ProtoMessage() {}
+
+func (x *QueryNodeTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_nameNode_nameNode_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryNodeTarget.ProtoReflect.Descriptor instead.
+func (*QueryNodeTarget) Descriptor() ([]byte, []int) {
+	return file_proto_nameNode_nameNode_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *QueryNodeTarget) GetReplicationFactor() uint32 {
+	if x != nil {
+		return x.ReplicationFactor
+	}
+	return 0
+}
+
+func (x *QueryNodeTarget) GetAllBlockId() [][]byte {
+	if x != nil {
+		return x.AllBlockId
+	}
+	return nil
+}
+
+func (x *QueryNodeTarget) GetTransactionID() []byte {
+	if x != nil {
+		return x.TransactionID
+	}
+	return nil
+}
+
+func (x *QueryNodeTarget) GetINodeID() []byte {
+	if x != nil {
+		return x.INodeID
+	}
+	return nil
+}
+
+func (x *QueryNodeTarget) GetNodeTarget() []*NodeTarget {
+	if x != nil {
+		return x.NodeTarget
+	}
+	return nil
 }
 
 var File_proto_nameNode_nameNode_proto protoreflect.FileDescriptor
@@ -164,24 +401,64 @@ var File_proto_nameNode_nameNode_proto protoreflect.FileDescriptor
 var file_proto_nameNode_nameNode_proto_rawDesc = []byte{
 	0x0a, 0x1d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x6e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65,
 	0x2f, 0x6e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22,
-	0x95, 0x01, 0x0a, 0x14, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61,
-	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x12, 0x24, 0x0a, 0x0d, 0x54, 0x72, 0x61, 0x6e,
-	0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x0d, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x12, 0x34,
-	0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1c,
-	0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69,
-	0x6f, 0x6e, 0x52, 0x65, 0x71, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74,
-	0x61, 0x74, 0x75, 0x73, 0x22, 0x21, 0x0a, 0x06, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x0b,
-	0x0a, 0x07, 0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x10, 0x00, 0x12, 0x0a, 0x0a, 0x06, 0x46,
-	0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x01, 0x22, 0x16, 0x0a, 0x14, 0x55, 0x70, 0x64, 0x61, 0x74,
-	0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x32,
-	0x4f, 0x0a, 0x08, 0x4e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x43, 0x0a, 0x11, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e,
-	0x12, 0x15, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
-	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x1a, 0x15, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
-	0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x22, 0x00,
-	0x42, 0x0c, 0x5a, 0x0a, 0x2e, 0x2f, 0x6e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x97, 0x01, 0x0a, 0x15, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61,
+	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x71, 0x12, 0x24, 0x0a, 0x0d, 0x54, 0x72, 0x61,
+	0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c,
+	0x52, 0x0d, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x12,
+	0x35, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0e, 0x32,
+	0x1d, 0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x71, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06,
+	0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x21, 0x0a, 0x06, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x12, 0x0b, 0x0a, 0x07, 0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x10, 0x00, 0x12, 0x0a, 0x0a,
+	0x06, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x01, 0x22, 0x17, 0x0a, 0x15, 0x43, 0x6f, 0x6d,
+	0x6d, 0x69, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x52,
+	0x65, 0x73, 0x22, 0xe0, 0x01, 0x0a, 0x18, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x6f, 0x64, 0x65,
+	0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x12,
+	0x2c, 0x0a, 0x11, 0x72, 0x65, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x61,
+	0x72, 0x67, 0x65, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x11, 0x72, 0x65, 0x70, 0x6c,
+	0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x12, 0x2a, 0x0a,
+	0x10, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x53, 0x70, 0x6c, 0x69, 0x74, 0x54, 0x61, 0x72, 0x67, 0x65,
+	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x10, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x53, 0x70,
+	0x6c, 0x69, 0x74, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x66, 0x69, 0x6c,
+	0x65, 0x53, 0x69, 0x7a, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x66, 0x69, 0x6c,
+	0x65, 0x53, 0x69, 0x7a, 0x65, 0x12, 0x26, 0x0a, 0x0e, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x54, 0x69,
+	0x6d, 0x65, 0x49, 0x6e, 0x53, 0x65, 0x63, 0x18, 0x04, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0e, 0x6c,
+	0x65, 0x61, 0x73, 0x65, 0x54, 0x69, 0x6d, 0x65, 0x49, 0x6e, 0x53, 0x65, 0x63, 0x12, 0x12, 0x0a,
+	0x04, 0x70, 0x61, 0x74, 0x68, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74,
+	0x68, 0x12, 0x12, 0x0a, 0x04, 0x68, 0x61, 0x73, 0x68, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x04, 0x68, 0x61, 0x73, 0x68, 0x22, 0x84, 0x01, 0x0a, 0x0a, 0x4e, 0x6f, 0x64, 0x65, 0x54, 0x61,
+	0x72, 0x67, 0x65, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x6e, 0x6f, 0x64, 0x65, 0x49, 0x44, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x6e, 0x6f, 0x64, 0x65, 0x49, 0x44, 0x12, 0x20, 0x0a, 0x0b,
+	0x6e, 0x6f, 0x64, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0b, 0x6e, 0x6f, 0x64, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x22,
+	0x0a, 0x0c, 0x6e, 0x6f, 0x64, 0x65, 0x47, 0x72, 0x70, 0x63, 0x50, 0x6f, 0x72, 0x74, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x0d, 0x52, 0x0c, 0x6e, 0x6f, 0x64, 0x65, 0x47, 0x72, 0x70, 0x63, 0x50, 0x6f,
+	0x72, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x49, 0x44, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x0c, 0x52, 0x07, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x49, 0x44, 0x22, 0xcc, 0x01, 0x0a,
+	0x0f, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x6f, 0x64, 0x65, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74,
+	0x12, 0x2c, 0x0a, 0x11, 0x72, 0x65, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x46,
+	0x61, 0x63, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x11, 0x72, 0x65, 0x70,
+	0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x46, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x12, 0x1e,
+	0x0a, 0x0a, 0x61, 0x6c, 0x6c, 0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x49, 0x64, 0x18, 0x02, 0x20, 0x03,
+	0x28, 0x0c, 0x52, 0x0a, 0x61, 0x6c, 0x6c, 0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x49, 0x64, 0x12, 0x24,
+	0x0a, 0x0d, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0d, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x49, 0x44, 0x12, 0x18, 0x0a, 0x07, 0x69, 0x4e, 0x6f, 0x64, 0x65, 0x49, 0x44, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x69, 0x4e, 0x6f, 0x64, 0x65, 0x49, 0x44, 0x12, 0x2b,
+	0x0a, 0x0a, 0x6e, 0x6f, 0x64, 0x65, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x18, 0x05, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x52,
+	0x0a, 0x6e, 0x6f, 0x64, 0x65, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x32, 0x9a, 0x01, 0x0a, 0x08,
+	0x4e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x46, 0x0a, 0x12, 0x43, 0x6f, 0x6d, 0x6d,
+	0x69, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x16,
+	0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x73, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x54,
+	0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x22, 0x00,
+	0x12, 0x46, 0x0a, 0x15, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x6f, 0x64, 0x65, 0x54, 0x61, 0x72,
+	0x67, 0x65, 0x74, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x19, 0x2e, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x4e, 0x6f, 0x64, 0x65, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x52, 0x65, 0x71, 0x1a, 0x10, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4e, 0x6f, 0x64, 0x65,
+	0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x22, 0x00, 0x42, 0x0c, 0x5a, 0x0a, 0x2e, 0x2f, 0x6e, 0x61,
+	0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -197,21 +474,27 @@ func file_proto_nameNode_nameNode_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_nameNode_nameNode_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_nameNode_nameNode_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_proto_nameNode_nameNode_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_proto_nameNode_nameNode_proto_goTypes = []interface{}{
-	(UpdateTransactionReq_Status)(0), // 0: UpdateTransactionReq.Status
-	(*UpdateTransactionReq)(nil),     // 1: UpdateTransactionReq
-	(*UpdateTransactionRes)(nil),     // 2: UpdateTransactionRes
+	(CommitTransactionsReq_Status)(0), // 0: CommitTransactionsReq.Status
+	(*CommitTransactionsReq)(nil),     // 1: CommitTransactionsReq
+	(*CommitTransactionsRes)(nil),     // 2: CommitTransactionsRes
+	(*QueryNodeTargetCreateReq)(nil),  // 3: QueryNodeTargetCreateReq
+	(*NodeTarget)(nil),                // 4: NodeTarget
+	(*QueryNodeTarget)(nil),           // 5: QueryNodeTarget
 }
 var file_proto_nameNode_nameNode_proto_depIdxs = []int32{
-	0, // 0: UpdateTransactionReq.status:type_name -> UpdateTransactionReq.Status
-	1, // 1: NameNode.UpdateTransaction:input_type -> UpdateTransactionReq
-	2, // 2: NameNode.UpdateTransaction:output_type -> UpdateTransactionRes
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: CommitTransactionsReq.status:type_name -> CommitTransactionsReq.Status
+	4, // 1: QueryNodeTarget.nodeTarget:type_name -> NodeTarget
+	1, // 2: NameNode.CommitTransactions:input_type -> CommitTransactionsReq
+	3, // 3: NameNode.QueryNodeTargetCreate:input_type -> QueryNodeTargetCreateReq
+	2, // 4: NameNode.CommitTransactions:output_type -> CommitTransactionsRes
+	5, // 5: NameNode.QueryNodeTargetCreate:output_type -> QueryNodeTarget
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_proto_nameNode_nameNode_proto_init() }
@@ -221,7 +504,7 @@ func file_proto_nameNode_nameNode_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_proto_nameNode_nameNode_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateTransactionReq); i {
+			switch v := v.(*CommitTransactionsReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -233,7 +516,43 @@ func file_proto_nameNode_nameNode_proto_init() {
 			}
 		}
 		file_proto_nameNode_nameNode_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateTransactionRes); i {
+			switch v := v.(*CommitTransactionsRes); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_nameNode_nameNode_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryNodeTargetCreateReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_nameNode_nameNode_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*NodeTarget); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_nameNode_nameNode_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryNodeTarget); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -251,7 +570,7 @@ func file_proto_nameNode_nameNode_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_nameNode_nameNode_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

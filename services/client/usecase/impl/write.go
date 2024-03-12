@@ -111,10 +111,17 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 		p := entity.CreateStreamRes{}
 		p.SetError(err)
 		chProgress <- p
+		w.nameNodeService.CommitTransaction(ctx, queryResult.GetTransactionID(), false)
 		return
 	}
 
-	// TODO
 	// commit result
+	err = w.nameNodeService.CommitTransaction(ctx, queryResult.GetTransactionID(), true)
+	if err != nil {
+		p := entity.CreateStreamRes{}
+		p.SetError(err)
+		chProgress <- p
+		return
+	}
 
 }

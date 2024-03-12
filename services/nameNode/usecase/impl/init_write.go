@@ -24,6 +24,7 @@ type WriteRequestUsecaseImpl struct {
 	cfg              *config.Config
 	nodeAllocator    service.NodeAllocator
 	dataNodeService  service.DataNodeService
+	rollbackService  service.RollbackService
 }
 
 func NewWriteUsecase(cfg *config.Config, dataNodeCache map[string]*pkgEt.ServiceDiscovery, mtx *sync.Mutex) usecase.WriteRequestUsecase {

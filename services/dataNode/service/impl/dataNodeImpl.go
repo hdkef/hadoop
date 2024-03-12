@@ -23,7 +23,13 @@ func (d *DataNodeService) ReplicateNextNode(ctx context.Context, nextNode *pkgEt
 	defer conn.Close()
 
 	client := dataNodeProto.NewDataNodeClient(conn)
-	_, err = client.Create(ctx, dto.ToProto())
+
+	dtoProto, err := dto.ToProto()
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Create(ctx, dtoProto)
 	if err != nil {
 		return err
 	}

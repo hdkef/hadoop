@@ -1,6 +1,9 @@
 package entity
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
+)
 
 type RollbackDto struct {
 	nodeID      string
@@ -50,4 +53,21 @@ func (r *RollbackDto) SetINodeID(iNodeID uuid.UUID) {
 
 func (r *RollbackDto) SetBlockID(blockID uuid.UUID) {
 	r.blockID = blockID
+}
+
+func (r *RollbackDto) ToProto() (*dataNodeProto.RollbackReq, error) {
+
+	iNdID, err := r.iNodeID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	bID, err := r.blockID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	return &dataNodeProto.RollbackReq{
+		INodeID: iNdID,
+		BlockID: bID,
+	}, nil
 }

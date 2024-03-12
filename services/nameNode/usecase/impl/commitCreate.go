@@ -9,7 +9,7 @@ import (
 )
 
 // CommitCreateRequest implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CommitCreateRequest(ctx context.Context, txID uuid.UUID) error {
+func (w *WriteRequestUsecaseImpl) CommitTransactions(ctx context.Context, txID uuid.UUID) error {
 
 	// get transactions
 	tx, err := w.transactionsRepo.Get(ctx, txID)

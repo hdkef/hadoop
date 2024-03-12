@@ -20,8 +20,8 @@ message NodeInfo{
 }
 
 message CreateReq {
-  string iNodeID = 1;
-  string blockID = 2;
+  bytes iNodeID = 1;
+  bytes blockID = 2;
   bytes blocksData = 3;
   uint32 replicationTarget = 4;
   uint32 currentReplicated = 5;
@@ -51,8 +51,8 @@ message QueryStorageRes {
 }
 
 message RollbackReq {
-  string iNodeID = 1;
-  string blockID = 2;
+  bytes iNodeID = 1;
+  bytes blockID = 2;
 }
 
 message RollbackRes {

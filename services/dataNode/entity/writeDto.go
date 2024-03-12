@@ -118,7 +118,7 @@ func (CreateDto *CreateDto) NewFromProto(req *dataNodeProto.CreateReq) error {
 	return nil
 }
 
-func (CreateDto *CreateDto) ToProto() *dataNodeProto.CreateReq {
+func (CreateDto *CreateDto) ToProto() (*dataNodeProto.CreateReq, error) {
 
 	nodeTarget := []*dataNodeProto.NodeInfo{}
 
@@ -131,13 +131,22 @@ func (CreateDto *CreateDto) ToProto() *dataNodeProto.CreateReq {
 		})
 	}
 
+	iNdID, err := CreateDto.inodeID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	bID, err := CreateDto.blockID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
 	proto := &dataNodeProto.CreateReq{
-		INodeID:               CreateDto.inodeID.String(),
-		BlockID:               CreateDto.blockID.String(),
+		INodeID:               iNdID,
+		BlockID:               bID,
 		BlocksData:            CreateDto.blocksData,
 		ReplicationTarget:     CreateDto.replicationTarget,
 		ReplicationNodeTarget: nodeTarget,
 	}
 
-	return proto
+	return proto, nil
 }

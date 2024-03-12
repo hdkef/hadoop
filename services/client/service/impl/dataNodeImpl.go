@@ -34,9 +34,19 @@ func (d *DataNodeService) ReplicateNextNode(ctx context.Context, dto *entity.Rep
 		})
 	}
 
+	iNdID, err := dto.GetINodeID().MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	bID, err := dto.GetBlockID().MarshalBinary()
+	if err != nil {
+		return err
+	}
+
 	_, err = client.Create(ctx, &dataNodeProto.CreateReq{
-		INodeID:               dto.GetINodeID().String(),
-		BlockID:               dto.GetBlockID().String(),
+		INodeID:               iNdID,
+		BlockID:               bID,
 		BlocksData:            dto.GetBlocksData(),
 		ReplicationTarget:     dto.GetReplicationTarget(),
 		CurrentReplicated:     dto.GetCurrentReplicated(),

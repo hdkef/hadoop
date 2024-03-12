@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	NameNode_UpdateTransaction_FullMethodName = "/NameNode/UpdateTransaction"
+	NameNode_CommitTransactions_FullMethodName    = "/NameNode/CommitTransactions"
+	NameNode_QueryNodeTargetCreate_FullMethodName = "/NameNode/QueryNodeTargetCreate"
 )
 
 // NameNodeClient is the client API for NameNode service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NameNodeClient interface {
-	UpdateTransaction(ctx context.Context, in *UpdateTransactionReq, opts ...grpc.CallOption) (*UpdateTransactionRes, error)
+	CommitTransactions(ctx context.Context, in *CommitTransactionsReq, opts ...grpc.CallOption) (*CommitTransactionsRes, error)
+	QueryNodeTargetCreate(ctx context.Context, in *QueryNodeTargetCreateReq, opts ...grpc.CallOption) (*QueryNodeTarget, error)
 }
 
 type nameNodeClient struct {
@@ -37,9 +39,18 @@ func NewNameNodeClient(cc grpc.ClientConnInterface) NameNodeClient {
 	return &nameNodeClient{cc}
 }
 
-func (c *nameNodeClient) UpdateTransaction(ctx context.Context, in *UpdateTransactionReq, opts ...grpc.CallOption) (*UpdateTransactionRes, error) {
-	out := new(UpdateTransactionRes)
-	err := c.cc.Invoke(ctx, NameNode_UpdateTransaction_FullMethodName, in, out, opts...)
+func (c *nameNodeClient) CommitTransactions(ctx context.Context, in *CommitTransactionsReq, opts ...grpc.CallOption) (*CommitTransactionsRes, error) {
+	out := new(CommitTransactionsRes)
+	err := c.cc.Invoke(ctx, NameNode_CommitTransactions_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nameNodeClient) QueryNodeTargetCreate(ctx context.Context, in *QueryNodeTargetCreateReq, opts ...grpc.CallOption) (*QueryNodeTarget, error) {
+	out := new(QueryNodeTarget)
+	err := c.cc.Invoke(ctx, NameNode_QueryNodeTargetCreate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +61,8 @@ func (c *nameNodeClient) UpdateTransaction(ctx context.Context, in *UpdateTransa
 // All implementations must embed UnimplementedNameNodeServer
 // for forward compatibility
 type NameNodeServer interface {
-	UpdateTransaction(context.Context, *UpdateTransactionReq) (*UpdateTransactionRes, error)
+	CommitTransactions(context.Context, *CommitTransactionsReq) (*CommitTransactionsRes, error)
+	QueryNodeTargetCreate(context.Context, *QueryNodeTargetCreateReq) (*QueryNodeTarget, error)
 	mustEmbedUnimplementedNameNodeServer()
 }
 
@@ -58,8 +70,11 @@ type NameNodeServer interface {
 type UnimplementedNameNodeServer struct {
 }
 
-func (UnimplementedNameNodeServer) UpdateTransaction(context.Context, *UpdateTransactionReq) (*UpdateTransactionRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateTransaction not implemented")
+func (UnimplementedNameNodeServer) CommitTransactions(context.Context, *CommitTransactionsReq) (*CommitTransactionsRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CommitTransactions not implemented")
+}
+func (UnimplementedNameNodeServer) QueryNodeTargetCreate(context.Context, *QueryNodeTargetCreateReq) (*QueryNodeTarget, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryNodeTargetCreate not implemented")
 }
 func (UnimplementedNameNodeServer) mustEmbedUnimplementedNameNodeServer() {}
 
@@ -74,20 +89,38 @@ func RegisterNameNodeServer(s grpc.ServiceRegistrar, srv NameNodeServer) {
 	s.RegisterService(&NameNode_ServiceDesc, srv)
 }
 
-func _NameNode_UpdateTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateTransactionReq)
+func _NameNode_CommitTransactions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommitTransactionsReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NameNodeServer).UpdateTransaction(ctx, in)
+		return srv.(NameNodeServer).CommitTransactions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: NameNode_UpdateTransaction_FullMethodName,
+		FullMethod: NameNode_CommitTransactions_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NameNodeServer).UpdateTransaction(ctx, req.(*UpdateTransactionReq))
+		return srv.(NameNodeServer).CommitTransactions(ctx, req.(*CommitTransactionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NameNode_QueryNodeTargetCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryNodeTargetCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NameNodeServer).QueryNodeTargetCreate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NameNode_QueryNodeTargetCreate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NameNodeServer).QueryNodeTargetCreate(ctx, req.(*QueryNodeTargetCreateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,8 +133,12 @@ var NameNode_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*NameNodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "UpdateTransaction",
-			Handler:    _NameNode_UpdateTransaction_Handler,
+			MethodName: "CommitTransactions",
+			Handler:    _NameNode_CommitTransactions_Handler,
+		},
+		{
+			MethodName: "QueryNodeTargetCreate",
+			Handler:    _NameNode_QueryNodeTargetCreate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

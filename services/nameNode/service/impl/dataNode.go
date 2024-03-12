@@ -25,10 +25,12 @@ func (d *DataNodeService) Rollback(ctx context.Context, dto *entity.RollbackDto)
 
 	client := dataNodeProto.NewDataNodeClient(conn)
 
-	_, err = client.Rollback(ctx, &dataNodeProto.RollbackReq{
-		INodeID: dto.GetINodeID().String(),
-		BlockID: dto.GetBlockID().String(),
-	})
+	dtoProto, err := dto.ToProto()
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Rollback(ctx, dtoProto)
 	if err != nil {
 		return err
 	}

@@ -121,6 +121,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 		q.SetINodeID(metadata.GetINodeID())
 		q.SetTransactionID(transactions.GetID())
 		q.SetNodeTargets(replNodeTarget)
+		q.SetReplicationFactor(replTarget)
 		res = append(res, q)
 	}
 	w.mtx.Unlock()

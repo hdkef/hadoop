@@ -14,6 +14,11 @@ func (c *CronUsecase) SetDataNodeCache(ctx context.Context) error {
 	}
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
+	// delete old registry
+	for key := range c.dataNodeCache {
+		delete(c.dataNodeCache, key)
+	}
+	// set new registry
 	for _, v := range svds {
 		c.dataNodeCache[v.GetID()] = v
 	}
