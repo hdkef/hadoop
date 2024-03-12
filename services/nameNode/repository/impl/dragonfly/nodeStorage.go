@@ -63,6 +63,7 @@ func (n *NodeStorageRepo) SetNodeStorage(ctx context.Context, et *entity.NodeSto
 }
 
 func NewNodeStorage(client pkgRepo.KeyValueRepository) repository.NodeStorageRepo {
+
 	return &NodeStorageRepo{
 		client: client,
 	}

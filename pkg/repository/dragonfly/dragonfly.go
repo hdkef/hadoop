@@ -3,16 +3,25 @@ package dragonfly
 import (
 	"context"
 	"errors"
+	"fmt"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/hdkef/hadoop/pkg/repository"
 	"github.com/redis/go-redis/v9"
 )
 
+const (
+	DG_ADDR     = "DG_ADDR"
+	DG_PASSWORD = "DG_PASSWORD"
+	DG_DB       = "DG_DB"
+)
+
 type DragonFlyConfig struct {
 	Addr     string
 	Password string
-	DB       int
+	DB       uint32
 }
 
 type DragonFlyRepo struct {
@@ -60,7 +69,7 @@ func NewDragonFlyRepo(cfg *DragonFlyConfig) repository.KeyValueRepository {
 	db := redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr,
 		Password: cfg.Password,
-		DB:       cfg.DB,
+		DB:       int(cfg.DB),
 	})
 
 	if db == nil {
@@ -69,5 +78,32 @@ func NewDragonFlyRepo(cfg *DragonFlyConfig) repository.KeyValueRepository {
 
 	return &DragonFlyRepo{
 		db: db,
+	}
+}
+
+func NewDragonFlyConfig() *DragonFlyConfig {
+	addr := os.Getenv(DG_ADDR)
+	if addr == "" {
+		panic(fmt.Sprintf("%s env not found", DG_ADDR))
+	}
+
+	db := os.Getenv(DG_DB)
+	if db == "" {
+		db = "0"
+	}
+
+	dbVal, err := strconv.Atoi(db)
+	if err != nil {
+		panic(fmt.Sprintf("%s %s", DG_DB, err.Error()))
+	}
+
+	password := os.Getenv(DG_PASSWORD)
+	if password == "" {
+		panic(fmt.Sprintf("%s env not found", DG_PASSWORD))
+	}
+	return &DragonFlyConfig{
+		Addr:     addr,
+		Password: password,
+		DB:       uint32(dbVal),
 	}
 }

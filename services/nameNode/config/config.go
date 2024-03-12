@@ -5,6 +5,9 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	pkgRepoDragonfly "github.com/hdkef/hadoop/pkg/repository/dragonfly"
+	pkgRepoPostgres "github.com/hdkef/hadoop/pkg/repository/postgres"
 )
 
 const (
@@ -17,6 +20,8 @@ type Config struct {
 	ReplicationTarget uint32
 	BlockSplitTarget  uint32
 	MinLeaseTime      time.Duration
+	DragonFlyConfig   *pkgRepoDragonfly.DragonFlyConfig
+	PostgresConfig    *pkgRepoPostgres.PostgresConfig
 }
 
 func NewConfig() *Config {
@@ -58,5 +63,7 @@ func NewConfig() *Config {
 		ReplicationTarget: uint32(replTargetVal),
 		BlockSplitTarget:  uint32(blockSplitTargetVal),
 		MinLeaseTime:      minLeaseTimeVal,
+		PostgresConfig:    pkgRepoPostgres.NewPostgresConfig(),
+		DragonFlyConfig:   pkgRepoDragonfly.NewDragonFlyConfig(),
 	}
 }

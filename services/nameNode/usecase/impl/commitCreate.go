@@ -19,14 +19,13 @@ func (w *WriteRequestUsecaseImpl) CommitTransactions(ctx context.Context, txID u
 
 	// begin db transactions
 	transactionable, err := w.transactionInjector.Begin(ctx)
-	if err != nil || tx == nil {
+	if err != nil {
 		return err
 	}
 	// create iNodeblockids
 
 	iNode := &entity.INode{}
 	iNode.SetID(tx.GetID())
-	iNode.SetHash(tx.GetMetadata().GetHash())
 	iNode.SetBlocks(tx.GetBlockTaret())
 
 	err = w.iNodeRepo.Create(ctx, iNode, transactionable)
