@@ -8,7 +8,7 @@ import (
 
 // RollbackTransactions implements usecase.WriteRequestUsecase.
 func (w *WriteRequestUsecaseImpl) RollbackTransactions(ctx context.Context, transactionsID uuid.UUID) error {
-	tx, err := w.transactionsRepo.Get(ctx, transactionsID)
+	tx, err := w.transactionsRepo.Get(ctx, transactionsID, nil)
 	if err != nil {
 		return err
 	}

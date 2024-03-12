@@ -8,7 +8,7 @@ import (
 func (c *CronUsecase) TransactionCleanUp(ctx context.Context) error {
 
 	// get one expired transactions
-	tx, err := c.transactionsRepo.GetOneExpired(ctx)
+	tx, err := c.transactionsRepo.GetOneExpired(ctx, nil)
 	if err != nil {
 		return err
 	}

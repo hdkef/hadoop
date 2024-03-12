@@ -1,9 +1,62 @@
 package config
 
-import "time"
+import (
+	"fmt"
+	"os"
+	"strconv"
+	"time"
+)
+
+const (
+	REPLICATION_TARGET = "REPLICATION_TARGET"
+	BLOCK_SPLIT_TARGET = "BLOCK_SPLIT_TARGET"
+	MIN_LEASE_TIME     = "MIN_LEASE_TIME"
+)
 
 type Config struct {
 	ReplicationTarget uint32
 	BlockSplitTarget  uint32
 	MinLeaseTime      time.Duration
+}
+
+func NewConfig() *Config {
+
+	replTarget := os.Getenv(REPLICATION_TARGET)
+
+	if replTarget == "" {
+		panic(fmt.Sprintf("%s env not found", REPLICATION_TARGET))
+	}
+
+	replTargetVal, err := strconv.Atoi(replTarget)
+	if err != nil {
+		panic(fmt.Sprintf("%s %s", REPLICATION_TARGET, err.Error()))
+	}
+
+	blockSplitTarget := os.Getenv(BLOCK_SPLIT_TARGET)
+
+	if blockSplitTarget == "" {
+		panic(fmt.Sprintf("%s env not found", BLOCK_SPLIT_TARGET))
+	}
+
+	blockSplitTargetVal, err := strconv.Atoi(blockSplitTarget)
+	if err != nil {
+		panic(fmt.Sprintf("%s %s", BLOCK_SPLIT_TARGET, err.Error()))
+	}
+
+	minLeaseTime := os.Getenv(MIN_LEASE_TIME)
+
+	if blockSplitTarget == "" {
+		panic(fmt.Sprintf("%s env not found", MIN_LEASE_TIME))
+	}
+
+	minLeaseTimeVal, err := time.ParseDuration(minLeaseTime)
+	if err != nil {
+		panic(fmt.Sprintf("%s %s", MIN_LEASE_TIME, err.Error()))
+	}
+
+	return &Config{
+		ReplicationTarget: uint32(replTargetVal),
+		BlockSplitTarget:  uint32(blockSplitTargetVal),
+		MinLeaseTime:      minLeaseTimeVal,
+	}
 }

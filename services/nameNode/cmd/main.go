@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"context"
@@ -6,17 +6,17 @@ import (
 	"sync"
 	"time"
 
+	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	"github.com/hdkef/hadoop/services/nameNode/config"
-	"github.com/hdkef/hadoop/services/nameNode/entity"
 	ucImpl "github.com/hdkef/hadoop/services/nameNode/usecase/impl"
 	"golang.org/x/sync/errgroup"
 )
 
 func main() {
 
-	dataNodeCache := make(map[string]*entity.ServiceDiscovery)
+	dataNodeCache := make(map[string]*pkgEt.ServiceDiscovery)
 	mtx := &sync.Mutex{}
-	cfg := &config.Config{}
+	cfg := config.NewConfig()
 	cronUC := ucImpl.NewCronUsecase(cfg, dataNodeCache, mtx, nil)
 
 	// spawn cron on another thread

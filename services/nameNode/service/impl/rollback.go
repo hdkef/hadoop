@@ -26,9 +26,7 @@ func (r *RollbackService) Rollback(ctx context.Context, tx *entity.Transactions)
 	// execute rollback
 
 	// remove metadata
-	errGroup.Go(func() error {
-		return r.metadataRepo.Delete(ctx, tx.GetMetadata())
-	})
+	r.metadataRepo.Delete(ctx, tx.GetMetadata(), nil)
 
 	// remove files in dataNode
 	blocks := tx.GetBlockTaret()
@@ -56,7 +54,7 @@ func (r *RollbackService) Rollback(ctx context.Context, tx *entity.Transactions)
 	}
 
 	// rolled back transaction
-	return r.transactionsRepo.RolledBack(ctx, tx.GetID())
+	return r.transactionsRepo.RolledBack(ctx, tx.GetID(), nil)
 }
 
 func NewRollbackService() service.RollbackService {

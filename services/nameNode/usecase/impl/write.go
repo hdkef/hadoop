@@ -27,13 +27,13 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 	}
 
 	// check parentPath
-	exist := w.metadataRepo.CheckPath(ctx, dto.GetParentPath())
+	exist := w.metadataRepo.CheckPath(ctx, dto.GetParentPath(), nil)
 	if !exist {
 		return nil, errors.New("metadata parent path is not exist")
 	}
 
 	// check path
-	exist = w.metadataRepo.CheckPath(ctx, dto.GetPath())
+	exist = w.metadataRepo.CheckPath(ctx, dto.GetPath(), nil)
 	if exist {
 		return nil, errors.New("metadata in that path is already exist")
 	}
@@ -67,8 +67,11 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 
 	for _, v := range svd {
 
-		nd, err := w.nodeStorageRepo.GetNodeStorage(ctx, v.GetID())
-		if err != nil || nd == nil {
+		nd := &entity.NodeStorage{}
+		nd.SetNodeID(v.GetID())
+
+		err := w.nodeStorageRepo.GetNodeStorage(ctx, nd)
+		if err != nil {
 			// if in cache not exist, try query to dataNode
 			qNd, err := w.dataNodeService.QueryStorage(ctx, v)
 			if err != nil {
@@ -118,7 +121,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 
 	transactions.SetBlockTarget(blockTargets)
 
-	err = w.transactionsRepo.Add(ctx, transactions)
+	err = w.transactionsRepo.Add(ctx, transactions, nil)
 	if err != nil {
 		return nil, err
 	}

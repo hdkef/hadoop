@@ -1,5 +1,7 @@
 package entity
 
+import "fmt"
+
 type NodeStorage struct {
 	nodeID                  string
 	leaseUsedStorage        uint64
@@ -79,4 +81,8 @@ func (n *NodeStorage) GetTotalStorage() uint64 {
 
 func (n *NodeStorage) GetFreeSpace() uint64 {
 	return n.totalStorage - (n.actualUsedStorage + n.leaseUsedStorage)
+}
+
+func (n *NodeStorage) GenerateKey() string {
+	return fmt.Sprintf("NodeStorage_%s", n.nodeID)
 }
