@@ -8,7 +8,10 @@ service Client {
 
 message CreateReq {
     bytes files = 1;
-    string dirTarget = 2;
+    string path = 2;
+    uint32 replicationTarget = 3;
+    uint32 blockSplitTarget = 4;
+    uint64 leaseTimeInSec = 5;
 }
 
 message CreateRes {

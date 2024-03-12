@@ -14,6 +14,7 @@ type Metadata struct {
 	path       string
 	mtype      MetadataType
 	iNodeID    uuid.UUID
+	hash       string
 }
 
 // Getter methods
@@ -48,4 +49,12 @@ func (m *Metadata) SetType(mtype MetadataType) {
 
 func (m *Metadata) SetINodeID(iNodeID uuid.UUID) {
 	m.iNodeID = iNodeID
+}
+
+func (m *Metadata) GetHash() string {
+	return m.hash
+}
+
+func (m *Metadata) SetHash(val string) {
+	m.hash = val
 }

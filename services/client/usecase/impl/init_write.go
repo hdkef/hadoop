@@ -7,6 +7,7 @@ import (
 
 type WriteUsecaseImpl struct {
 	dataNodeService service.DataNodeService
+	nameNodeService service.NameNodeService
 }
 
 func NewWriteUsecase(dataNodeService service.DataNodeService) usecase.WriteUsecase {

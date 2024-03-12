@@ -8,6 +8,7 @@ type CreateReqDto struct {
 	fileSize          uint64
 	leaseTimeInSec    uint64
 	path              string
+	hash              string
 }
 
 // Getter methods
@@ -54,4 +55,12 @@ func (c *CreateReqDto) SetLeaseTimeInSec(leaseTimeInSec uint64) {
 
 func (c *CreateReqDto) SetPath(path string) {
 	c.path = path
+}
+
+func (c *CreateReqDto) GetHash() string {
+	return c.hash
+}
+
+func (c *CreateReqDto) SetHash(val string) {
+	c.hash = val
 }

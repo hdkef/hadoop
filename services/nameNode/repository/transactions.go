@@ -11,4 +11,6 @@ type TransactionsRepo interface {
 	Add(ctx context.Context, et *entity.Transactions) error
 	Commit(ctx context.Context, transactionID uuid.UUID) error
 	Get(ctx context.Context, transactionID uuid.UUID) (*entity.Transactions, error)
+	GetOneExpired(ctx context.Context) (*entity.Transactions, error)
+	RolledBack(ctx context.Context, transactionID uuid.UUID) error
 }

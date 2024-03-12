@@ -9,7 +9,10 @@ import (
 func (h *handler) Create(req *clientProto.CreateReq, stream clientProto.Client_CreateServer) error {
 
 	dto := &entity.CreateDto{}
-	dto.NewFromProto(req)
+	err := dto.NewFromProto(req)
+	if err != nil {
+		return err
+	}
 
 	progressCh := make(chan entity.CreateStreamRes)
 

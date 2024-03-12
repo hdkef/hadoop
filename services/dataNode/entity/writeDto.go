@@ -1,13 +1,14 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
 )
 
 type CreateDto struct {
-	inodeID               string
-	blockID               string
+	inodeID               uuid.UUID
+	blockID               uuid.UUID
 	blocksData            []byte
 	replicationTarget     uint32
 	currentReplicated     uint32
@@ -15,11 +16,11 @@ type CreateDto struct {
 }
 
 // Set methods allow setting individual fields of CreateDto
-func (w *CreateDto) SetInodeID(inodeID string) {
+func (w *CreateDto) SetInodeID(inodeID uuid.UUID) {
 	w.inodeID = inodeID
 }
 
-func (w *CreateDto) SetBlockID(blockID string) {
+func (w *CreateDto) SetBlockID(blockID uuid.UUID) {
 	w.blockID = blockID
 }
 
@@ -40,11 +41,11 @@ func (w *CreateDto) SetReplicationNodeTarget(replicationNodeTarget []*pkgEt.Node
 }
 
 // Get methods allow getting individual fields of CreateDto
-func (w *CreateDto) GetInodeID() string {
+func (w *CreateDto) GetInodeID() uuid.UUID {
 	return w.inodeID
 }
 
-func (w *CreateDto) GetBlockID() string {
+func (w *CreateDto) GetBlockID() uuid.UUID {
 	return w.blockID
 }
 
@@ -84,10 +85,19 @@ func (w *CreateDto) NextReplicaNode() (*pkgEt.NodeInfo, bool) {
 	return nil, false
 }
 
-func (CreateDto *CreateDto) NewFromProto(req *dataNodeProto.CreateReq) {
+func (CreateDto *CreateDto) NewFromProto(req *dataNodeProto.CreateReq) error {
 
-	CreateDto.SetInodeID(req.GetINodeID())
-	CreateDto.SetBlockID(req.GetBlockID())
+	inode, err := uuid.FromBytes([]byte(req.GetINodeID()))
+	if err != nil {
+		return err
+	}
+	blockId, err := uuid.FromBytes([]byte(req.GetBlockID()))
+	if err != nil {
+		return err
+	}
+
+	CreateDto.SetInodeID(inode)
+	CreateDto.SetBlockID(blockId)
 	CreateDto.SetBlocksData(req.GetBlocksData())
 	CreateDto.SetReplicationTarget(req.GetReplicationTarget())
 	CreateDto.SetCurrentReplicated(req.GetCurrentReplicated())
@@ -104,6 +114,8 @@ func (CreateDto *CreateDto) NewFromProto(req *dataNodeProto.CreateReq) {
 	}
 
 	CreateDto.SetReplicationNodeTarget(replicationNodeTarget)
+
+	return nil
 }
 
 func (CreateDto *CreateDto) ToProto() *dataNodeProto.CreateReq {
@@ -120,8 +132,8 @@ func (CreateDto *CreateDto) ToProto() *dataNodeProto.CreateReq {
 	}
 
 	proto := &dataNodeProto.CreateReq{
-		INodeID:               CreateDto.inodeID,
-		BlockID:               CreateDto.blockID,
+		INodeID:               CreateDto.inodeID.String(),
+		BlockID:               CreateDto.blockID.String(),
 		BlocksData:            CreateDto.blocksData,
 		ReplicationTarget:     CreateDto.replicationTarget,
 		ReplicationNodeTarget: nodeTarget,

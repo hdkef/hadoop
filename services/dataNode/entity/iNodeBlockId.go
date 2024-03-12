@@ -1,43 +1,33 @@
 package entity
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/hdkef/hadoop/pkg/helper"
+	"github.com/google/uuid"
 )
 
 type INodeBlockID struct {
-	iNodeID string
-	blockID string
-	dirPath string
+	iNodeID uuid.UUID
+	blockID uuid.UUID
 }
 
 // Set methods allow setting individual fields of INodeBlockID
-func (ib *INodeBlockID) SetINodeID(iNodeID string) {
+func (ib *INodeBlockID) SetINodeID(iNodeID uuid.UUID) {
 	ib.iNodeID = iNodeID
 }
 
-func (ib *INodeBlockID) SetBlockID(blockID string) {
+func (ib *INodeBlockID) SetBlockID(blockID uuid.UUID) {
 	ib.blockID = blockID
 }
 
-func (ib *INodeBlockID) SetDirPath(dirPath string) {
-	ib.dirPath = dirPath
-}
-
 // Get methods allow getting individual fields of INodeBlockID
-func (ib *INodeBlockID) GetINodeID() string {
+func (ib *INodeBlockID) GetINodeID() uuid.UUID {
 	return ib.iNodeID
 }
 
-func (ib *INodeBlockID) GetBlockID() string {
+func (ib *INodeBlockID) GetBlockID() uuid.UUID {
 	return ib.blockID
-}
-
-func (ib *INodeBlockID) GetDirPath() string {
-	return ib.dirPath
 }
 
 func (i *INodeBlockID) GetKey() string {
@@ -46,14 +36,9 @@ func (i *INodeBlockID) GetKey() string {
 
 func (i *INodeBlockID) Write(root string, binaryData []byte) error {
 
-	randomStr, err := helper.GenerateRandomString()
-	if err != nil {
-		return err
-	}
+	dirPath := fmt.Sprintf("%s/%s.bin", root, i.iNodeID.String()+i.blockID.String())
 
-	i.dirPath = fmt.Sprintf("%s/%s.bin", root, randomStr)
-
-	err = os.WriteFile(i.dirPath, binaryData, 0644)
+	err := os.WriteFile(dirPath, binaryData, 0644)
 	if err != nil {
 		return err
 	}
@@ -61,9 +46,14 @@ func (i *INodeBlockID) Write(root string, binaryData []byte) error {
 	return nil
 }
 
-func (i *INodeBlockID) ToJSON() []byte {
+func (i *INodeBlockID) Remove(root string) error {
 
-	b, _ := json.Marshal(i)
+	dirPath := fmt.Sprintf("%s/%s.bin", root, i.iNodeID.String()+i.blockID.String())
 
-	return b
+	err := os.Remove(dirPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

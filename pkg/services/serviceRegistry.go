@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/hdkef/hadoop/services/nameNode/entity"
+	"github.com/hdkef/hadoop/pkg/entity"
 )
 
 type ServiceRegistry interface {

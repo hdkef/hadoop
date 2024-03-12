@@ -3,7 +3,8 @@ option go_package = "./dataNode";
 
 service DataNode {
   rpc Create (CreateReq) returns (CreateRes) {}
-  rpc QueryStorage(QueryStorageReq) returns (QueryStorageRes){} 
+  rpc QueryStorage(QueryStorageReq) returns (QueryStorageRes){}
+  rpc Rollback(RollbackReq) returns (RollbackRes){} 
 }
 
 message NodeInfo{
@@ -47,4 +48,13 @@ message QueryStorageReq {
 message QueryStorageRes {
   uint64 total_storage = 1;
   uint64 actual_used_storage = 2;
+}
+
+message RollbackReq {
+  string iNodeID = 1;
+  string blockID = 2;
+}
+
+message RollbackRes {
+  string description = 1;
 }

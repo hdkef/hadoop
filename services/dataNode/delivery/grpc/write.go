@@ -12,10 +12,13 @@ func (g *handler) Create(ctx context.Context, req *dataNodeProto.CreateReq) (*da
 
 	// create domain create dto
 	createDto := &entity.CreateDto{}
-	createDto.NewFromProto(req)
+	err := createDto.NewFromProto(req)
+	if err != nil {
+		return nil, err
+	}
 
 	// execute logic
-	err := g.writeUC.Create(ctx, createDto)
+	err = g.writeUC.Create(ctx, createDto)
 
 	if err != nil {
 		return nil, err

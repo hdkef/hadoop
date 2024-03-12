@@ -9,7 +9,7 @@ import (
 )
 
 // CommitCreateRequest implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CommitCreateRequest(ctx context.Context, txID uuid.UUID, hash string) error {
+func (w *WriteRequestUsecaseImpl) CommitCreateRequest(ctx context.Context, txID uuid.UUID) error {
 
 	// get transactions
 	tx, err := w.transactionsRepo.Get(ctx, txID)
@@ -21,7 +21,7 @@ func (w *WriteRequestUsecaseImpl) CommitCreateRequest(ctx context.Context, txID 
 
 	iNode := &entity.INode{}
 	iNode.SetID(tx.GetID())
-	iNode.SetHash(hash)
+	iNode.SetHash(tx.GetMetadata().GetHash())
 	iNode.SetBlocks(tx.GetBlockTaret())
 
 	err = w.iNodeRepo.Create(ctx, iNode)

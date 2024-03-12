@@ -11,7 +11,7 @@ import (
 )
 
 // WriteRequest implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity.CreateReqDto) (res []*pkgEt.QueryNodeTarget, err error) {
+func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.CreateReqDto) (res []*pkgEt.QueryNodeTarget, err error) {
 
 	replTarget := w.cfg.ReplicationTarget
 	blockSplitTarget := w.cfg.BlockSplitTarget
@@ -42,9 +42,10 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *entity
 	metadata.SetParentPath(dto.GetParentPath())
 	metadata.SetType(entity.METADATA_TYPE_FILE)
 	metadata.SetINodeID(uuid.New())
+	metadata.SetHash(dto.GetHash())
 
 	// check available dataNode (consul)
-	var svd []*entity.ServiceDiscovery
+	var svd []*pkgEt.ServiceDiscovery
 	if len(w.dataNodeCache) == 0 {
 		svd, err = w.serviceRegistry.GetAll(ctx, "dataNode", "")
 		if err != nil {

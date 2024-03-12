@@ -11,5 +11,5 @@ type MetadataRepo interface {
 	Mkdir(ctx context.Context, path string) error
 	Touch(ctx context.Context, path string, iNodeID string) error
 	Get(ctx context.Context, path string) (*entity.Metadata, error)
-	Delete(ctx context.Context, path string) error
+	Delete(ctx context.Context, metadata *entity.Metadata) error
 }

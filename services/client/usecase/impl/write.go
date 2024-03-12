@@ -14,9 +14,25 @@ import (
 func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, chProgress chan entity.CreateStreamRes) {
 
 	// hash file
+	hash := dto.GetHashFile()
 
-	// TODO req write to nameNode
-	queryResult := pkgEt.QueryNodeTarget{}
+	// req write to nameNode
+
+	dtoCreateReq := &pkgEt.CreateReqDto{}
+	dtoCreateReq.SetHash(hash)
+	dtoCreateReq.SetLeaseTimeInSec(dto.GetLeaseTimeInSec())
+	dtoCreateReq.SetReplicationTarget(dto.GetReplicationTarget())
+	dtoCreateReq.SetPath(dto.GetPath())
+	dtoCreateReq.SetBlockSplitTarget(dto.GetBlockSplitTarget())
+	dtoCreateReq.SetFileSize(dto.GetFileSize())
+
+	queryResult, err := w.nameNodeService.QueryNodeTarget(ctx, dtoCreateReq)
+	if err != nil {
+		p := entity.CreateStreamRes{}
+		p.SetError(err)
+		chProgress <- p
+		return
+	}
 
 	totalBlock := queryResult.GetTotalBlock()
 
@@ -89,7 +105,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 
 	}
 
-	err := errGroup.Wait()
+	err = errGroup.Wait()
 	defer close(chProgress)
 	if err != nil {
 		p := entity.CreateStreamRes{}

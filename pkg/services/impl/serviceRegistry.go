@@ -5,18 +5,16 @@ import (
 	"fmt"
 
 	consul "github.com/hashicorp/consul/api"
-	"github.com/hdkef/hadoop/services/nameNode/config"
-	"github.com/hdkef/hadoop/services/nameNode/entity"
-	"github.com/hdkef/hadoop/services/nameNode/service"
+	pkgEt "github.com/hdkef/hadoop/pkg/entity"
+	pkgSvc "github.com/hdkef/hadoop/pkg/services"
 )
 
 type ServiceRegistry struct {
-	cfg *config.Config
-	c   *consul.Client
+	c *consul.Client
 }
 
 // GetAll implements service.ServiceRegistry.
-func (s *ServiceRegistry) GetAll(ctx context.Context, servicesName string, tag string) ([]*entity.ServiceDiscovery, error) {
+func (s *ServiceRegistry) GetAll(ctx context.Context, servicesName string, tag string) ([]*pkgEt.ServiceDiscovery, error) {
 	passingOnly := true
 	addrs, _, err := s.c.Health().Service(servicesName, tag, passingOnly, nil)
 	if len(addrs) == 0 && err == nil {
@@ -26,11 +24,11 @@ func (s *ServiceRegistry) GetAll(ctx context.Context, servicesName string, tag s
 		return nil, err
 	}
 
-	svd := []*entity.ServiceDiscovery{}
+	svd := []*pkgEt.ServiceDiscovery{}
 
 	for _, v := range addrs {
 
-		newEntry := &entity.ServiceDiscovery{}
+		newEntry := &pkgEt.ServiceDiscovery{}
 		newEntry.SetAddress(v.Node.Address)
 		newEntry.SetID(v.Node.ID)
 		newEntry.SetPort(uint32(v.Service.Port))
@@ -42,7 +40,7 @@ func (s *ServiceRegistry) GetAll(ctx context.Context, servicesName string, tag s
 	return svd, nil
 }
 
-func NewServiceRegistry(cfg *config.Config) service.ServiceRegistry {
+func NewServiceRegistry() pkgSvc.ServiceRegistry {
 	config := consul.DefaultConfig()
 	c, err := consul.NewClient(config)
 	if err != nil {
@@ -50,7 +48,6 @@ func NewServiceRegistry(cfg *config.Config) service.ServiceRegistry {
 	}
 
 	return &ServiceRegistry{
-		cfg: cfg,
-		c:   c,
+		c: c,
 	}
 }

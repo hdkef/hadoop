@@ -8,5 +8,11 @@ import (
 
 // RollBack implements usecase.WriteUsecase.
 func (w *WriteUsecaseImpl) RollBack(ctx context.Context, dto *entity.RollbackDto) error {
-	panic("unimplemented")
+
+	// remove from storage
+	iNodeBlockID := &entity.INodeBlockID{}
+	iNodeBlockID.SetINodeID(dto.GetINodeID())
+	iNodeBlockID.SetBlockID(dto.GetBlockID())
+
+	return iNodeBlockID.Remove(w.cfg.StorageRoot)
 }

@@ -17,7 +17,7 @@ func main() {
 	dataNodeCache := make(map[string]*entity.ServiceDiscovery)
 	mtx := &sync.Mutex{}
 	cfg := &config.Config{}
-	cronUC := ucImpl.NewCronUsecase(cfg, dataNodeCache, mtx)
+	cronUC := ucImpl.NewCronUsecase(cfg, dataNodeCache, mtx, nil)
 
 	// spawn cron on another thread
 	cron := time.NewTicker(1 * time.Second)
