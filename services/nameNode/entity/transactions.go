@@ -16,11 +16,11 @@ type TransactionsAction int
 
 type Transactions struct {
 	id                uuid.UUID
-	action            TransactionsAction
-	createdAt         time.Time
 	isCommitted       bool
-	blockTarget       []*BlockTarget
+	createdAt         time.Time
 	leaseTimeInSecond uint64
+	action            TransactionsAction
+	blockTarget       []*BlockTarget
 	metadata          *Metadata
 }
 

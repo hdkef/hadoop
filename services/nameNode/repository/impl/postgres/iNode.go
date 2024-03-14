@@ -13,10 +13,9 @@ import (
 	"github.com/hdkef/hadoop/services/nameNode/repository"
 )
 
-const queryGetByINodeID = "SELECT FROM i_nodes_blocks (blocks_id,node_id,blocks_index) WHERE i_node_id = $1"
-
 type INodeRepo struct {
-	db *sql.DB
+	db        *sql.DB
+	TableName string
 }
 
 // Create implements repository.INodeRepo.
@@ -63,7 +62,8 @@ func (i *INodeRepo) Get(ctx context.Context, inodeID uuid.UUID, tx *pkgRepoTr.Tr
 	var rows *sql.Rows
 	var err error
 
-	// Determine whether to use the transaction or the database connection directly
+	queryGetByINodeID := fmt.Sprintf("SELECT FROM %s (blocks_id,node_id,blocks_index,size) WHERE i_node_id = $1", i.TableName)
+
 	if tx != nil {
 		rows, err = tx.Tx.QueryContext(ctx, queryGetByINodeID, inodeID.String())
 	} else {
@@ -76,35 +76,40 @@ func (i *INodeRepo) Get(ctx context.Context, inodeID uuid.UUID, tx *pkgRepoTr.Tr
 	defer rows.Close()
 
 	blocksIDNodeIds := make(map[uuid.UUID][]string)
-	blockIDsIndex := make(map[uint32]uuid.UUID)
+	blockTargets := make(map[uint32]*entity.BlockTarget)
 
 	// Iterate over the rows returned by the query
 	for rows.Next() {
 		var blockID uuid.UUID
 		var NodeID string
 		var Index uint32
+		var size uint64
 
-		err := rows.Scan(&blockID, &NodeID, &Index)
+		err := rows.Scan(&blockID, &NodeID, &Index, &size)
 		if err != nil {
 			return nil, err
 		}
 
 		// Populate the maps
 		blocksIDNodeIds[blockID] = append(blocksIDNodeIds[blockID], NodeID)
-		blockIDsIndex[Index] = blockID
+		blockTargets[Index] = &entity.BlockTarget{
+			ID:   blockID,
+			Size: size,
+		}
 	}
 
 	// Construct allBlockIds and blocks slice
-	allBlockIds := make([]uuid.UUID, len(blockIDsIndex))
-	blocks := make([]*entity.BlockTarget, len(blockIDsIndex))
+	allBlockIds := make([]uuid.UUID, len(blockTargets))
+	blocks := make([]*entity.BlockTarget, len(blockTargets))
 
 	// Populate allBlockIds and blocks slice
-	for i, blockID := range blockIDsIndex {
-		nodeIds := blocksIDNodeIds[blockID]
-		allBlockIds[i] = blockID
+	for i, b := range blockTargets {
+		nodeIds := blocksIDNodeIds[b.ID]
+		allBlockIds[i] = b.ID
 		blocks[i] = &entity.BlockTarget{
-			ID:      blockID,
+			ID:      b.ID,
 			NodeIDs: nodeIds,
+			Size:    b.Size,
 		}
 	}
 
@@ -127,7 +132,7 @@ func (i *INodeRepo) queryInsert(inode *entity.INode) (string, []interface{}, err
 		return "", nil, errors.New("unmatch size of blocks & blocks id")
 	}
 
-	query := "INSERT INTO i_nodes_blocks (i_node_id,blocks_id,blocks_index,node_id) VALUES "
+	query := fmt.Sprintf("INSERT INTO %s (i_node_id,blocks_id,blocks_index,node_id,size) VALUES ", i.TableName)
 
 	var placeholders []string
 	var values []interface{}
@@ -137,8 +142,8 @@ func (i *INodeRepo) queryInsert(inode *entity.INode) (string, []interface{}, err
 	for i := range inode.GetAllBlockIds() {
 		blocks := inode.GetBlocks()[i]
 		for _, nodeID := range blocks.NodeIDs {
-			values = append(values, inode.GetID().String(), blocks.ID.String(), i, nodeID)
-			placeholders = append(placeholders, fmt.Sprintf("($%d, $%d, $%d, $%d)", (idx*4)+1, (idx*4)+2, (idx*4)+3, (idx*4)+4))
+			values = append(values, inode.GetID().String(), blocks.ID.String(), i, nodeID, blocks.Size)
+			placeholders = append(placeholders, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", (idx*5)+1, (idx*5)+2, (idx*5)+3, (idx*5)+4, (idx*5)+5))
 			idx++
 		}
 	}

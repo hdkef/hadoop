@@ -7,3 +7,33 @@ message NodeStorage {
 	uint64 ActualUsedStorage = 3;
 	uint64 TotalStorage      = 4;
 }
+
+message BlockTarget {
+	bytes ID = 1;
+	uint64 Size = 2; 
+	repeated string NodeIDs = 3;
+}
+
+message Metadata {
+	string parentPath = 1;  
+	string path = 2;
+	enum MetadataType {
+		DIR = 0;
+		FILE = 1;
+	}
+	MetadataType mType = 3;
+	bytes iNodeID = 4;
+	string hash = 5;  
+	repeated bytes allBlockIDs = 6;
+}
+
+message Transactions {
+	enum Action{
+		CREATE = 0;
+		UPDATE = 1;
+		DELETE = 2;
+	}
+	Action action = 1;
+	repeated BlockTarget blockTarget = 2;
+	Metadata metadata = 3;
+}

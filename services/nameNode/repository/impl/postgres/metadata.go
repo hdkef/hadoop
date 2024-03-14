@@ -10,7 +10,8 @@ import (
 )
 
 type MetadataRepo struct {
-	db *sql.DB
+	db        *sql.DB
+	TableName string
 }
 
 // CheckPath implements repository.MetadataRepo.
