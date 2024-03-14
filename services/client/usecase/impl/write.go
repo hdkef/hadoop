@@ -41,7 +41,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 	mtx := &sync.Mutex{}
 	progress := float32(0)
 
-	errGroup := errgroup.Group{}
+	errGroup, c := errgroup.WithContext(ctx)
 
 	for idx := 0; idx < totalBlock; idx++ {
 
@@ -88,7 +88,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 
 			replicaDto.SetReplicationNodeTarget(targetNode)
 
-			err = w.dataNodeService.ReplicateNextNode(ctx, &replicaDto)
+			err = w.dataNodeService.ReplicateNextNode(c, &replicaDto)
 
 			// if success, increment progress and send progress info
 			mtx.Lock()

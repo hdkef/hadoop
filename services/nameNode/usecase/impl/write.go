@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
+	"golang.org/x/sync/errgroup"
 )
 
 // WriteRequest implements usecase.WriteRequestUsecase.
@@ -26,17 +27,31 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 		leaseTimeInSec = dto.GetLeaseTimeInSec()
 	}
 
+	errGroup, c := errgroup.WithContext(ctx)
+
 	// check parentPath
-	exist := w.metadataRepo.CheckPath(ctx, dto.GetParentPath(), nil)
-	if !exist {
-		return nil, errors.New("metadata parent path is not exist")
-	}
+	errGroup.Go(func() error {
+		exist := w.metadataRepo.CheckPath(c, dto.GetParentPath(), nil)
+		if !exist {
+			return errors.New("metadata parent path is not exist")
+		}
+		return nil
+	})
 
 	// check path
-	exist = w.metadataRepo.CheckPath(ctx, dto.GetPath(), nil)
-	if exist {
-		return nil, errors.New("metadata in that path is already exist")
+	errGroup.Go(func() error {
+		exist := w.metadataRepo.CheckPath(c, dto.GetPath(), nil)
+		if exist {
+			return errors.New("metadata in that path is already exist")
+		}
+		return nil
+	})
+
+	err = errGroup.Wait()
+	if err != nil {
+		return nil, err
 	}
+
 	metadata := &entity.Metadata{}
 	metadata.SetPath(dto.GetPath())
 	metadata.SetParentPath(dto.GetParentPath())
