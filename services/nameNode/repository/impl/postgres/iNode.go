@@ -43,7 +43,7 @@ func (i *INodeRepo) Create(ctx context.Context, inode *entity.INode, tx *pkgRepo
 	}
 
 	// else
-	_, err = i.db.Exec(q, val)
+	_, err = i.db.Exec(q, val...)
 	if err != nil {
 		return err
 	}
@@ -56,77 +56,63 @@ func (i *INodeRepo) Delete(ctx context.Context, inodeID uuid.UUID, tx *pkgRepoTr
 }
 
 // Get implements repository.INodeRepo.
-func (i *INodeRepo) Get(ctx context.Context, inodeID uuid.UUID, tx *pkgRepoTr.Transactionable) (et *entity.INode, err error) {
-
-	et = &entity.INode{}
+func (i *INodeRepo) Get(ctx context.Context, inodeID uuid.UUID, tx *pkgRepoTr.Transactionable) (*entity.INode, error) {
+	et := &entity.INode{}
 	et.SetID(inodeID)
 
 	var rows *sql.Rows
+	var err error
 
-	// if use tx
+	// Determine whether to use the transaction or the database connection directly
 	if tx != nil {
-		stmt, err := tx.Tx.PrepareContext(ctx, queryGetByINodeID)
-		if err != nil {
-			return nil, err
-		}
-		defer stmt.Close()
-
-		rows, err = stmt.QueryContext(ctx, inodeID)
-		if err != nil {
-			return nil, err
-		}
+		rows, err = tx.Tx.QueryContext(ctx, queryGetByINodeID, inodeID.String())
 	} else {
-		// else
-		rows, err = i.db.QueryContext(ctx, queryGetByINodeID, inodeID)
-		if err != nil {
-			return nil, err
-		}
+		rows, err = i.db.QueryContext(ctx, queryGetByINodeID, inodeID.String())
 	}
 
-	if rows == nil {
-		err = errors.New("rows not exist")
-		return
+	if err != nil {
+		return nil, err
 	}
 	defer rows.Close()
 
 	blocksIDNodeIds := make(map[uuid.UUID][]string)
 	blockIDsIndex := make(map[uint32]uuid.UUID)
 
+	// Iterate over the rows returned by the query
 	for rows.Next() {
 		var blockID uuid.UUID
-		NodeID := ""
-		Index := uint32(0)
+		var NodeID string
+		var Index uint32
 
 		err := rows.Scan(&blockID, &NodeID, &Index)
 		if err != nil {
 			return nil, err
 		}
 
+		// Populate the maps
 		blocksIDNodeIds[blockID] = append(blocksIDNodeIds[blockID], NodeID)
 		blockIDsIndex[Index] = blockID
 	}
 
-	allBlockIds := []uuid.UUID{}
-	blocks := []*entity.BlockTarget{}
+	// Construct allBlockIds and blocks slice
+	allBlockIds := make([]uuid.UUID, len(blockIDsIndex))
+	blocks := make([]*entity.BlockTarget, len(blockIDsIndex))
 
-	for i := 0; i < len(blockIDsIndex); i++ {
-
-		blockID := blockIDsIndex[uint32(i)]
+	// Populate allBlockIds and blocks slice
+	for i, blockID := range blockIDsIndex {
 		nodeIds := blocksIDNodeIds[blockID]
-
-		allBlockIds = append(allBlockIds, blockID)
-
-		blocks = append(blocks, &entity.BlockTarget{
+		allBlockIds[i] = blockID
+		blocks[i] = &entity.BlockTarget{
 			ID:      blockID,
 			NodeIDs: nodeIds,
-		})
+		}
 	}
 
+	// Set the attributes of et
 	et.SetAllBlockIds(allBlockIds)
 	et.SetBlocks(blocks)
 
-	return
-
+	return et, nil
 }
 
 func NewINodeRepo(db *sql.DB) repository.INodeRepo {
@@ -146,11 +132,14 @@ func (i *INodeRepo) queryInsert(inode *entity.INode) (string, []interface{}, err
 	var placeholders []string
 	var values []interface{}
 
+	idx := 0
+
 	for i := range inode.GetAllBlockIds() {
 		blocks := inode.GetBlocks()[i]
 		for _, nodeID := range blocks.NodeIDs {
 			values = append(values, inode.GetID().String(), blocks.ID.String(), i, nodeID)
-			placeholders = append(placeholders, fmt.Sprintf("($%d, $%d, $%d, $%d)", (i*4)+1, (i*4)+2, (i*4)+3, (i*4)+4))
+			placeholders = append(placeholders, fmt.Sprintf("($%d, $%d, $%d, $%d)", (idx*4)+1, (idx*4)+2, (idx*4)+3, (idx*4)+4))
+			idx++
 		}
 	}
 

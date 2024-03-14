@@ -1,9 +1,12 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
+	"database/sql/driver"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 	"github.com/stretchr/testify/assert"
@@ -53,7 +56,7 @@ func TestINodeRepo_queryInsert(t *testing.T) {
 			args: args{
 				inode: iNode,
 			},
-			want: `INSERT INTO i_nodes_blocks (i_node_id,blocks_id,blocks_index,node_id) VALUES (($1, $2, $3, $4), ($1, $2, $3, $4), ($5, $6, $7, $8), ($5, $6, $7, $8))`,
+			want: `INSERT INTO i_nodes_blocks (i_node_id,blocks_id,blocks_index,node_id) VALUES (($1, $2, $3, $4), ($5, $6, $7, $8), ($9, $10, $11, $12), ($13, $14, $15, $16))`,
 			want1: []interface{}{
 				iNodeID.String(),
 				blockID1.String(),
@@ -87,5 +90,123 @@ func TestINodeRepo_queryInsert(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 			assert.Equal(t, tt.want1, got1)
 		})
+	}
+}
+
+func TestGet(t *testing.T) {
+	// Create a new mock database connection
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Failed to create mock: %v", err)
+	}
+	defer db.Close()
+
+	// Create a new instance of your repository
+	iNodeRepo := &INodeRepo{db: db}
+	blockId1 := uuid.New()
+	blockId2 := uuid.New()
+	nodeID1 := "A"
+	nodeID2 := "B"
+	nodeID3 := "C"
+
+	// Prepare expected query and rows
+	inodeID := uuid.New()
+	rows := sqlmock.NewRows([]string{"blocks_id", "node_id", "blocks_index"}).
+		AddRow(blockId1.String(), nodeID1, 0).
+		AddRow(blockId1.String(), nodeID2, 0).
+		AddRow(blockId2.String(), nodeID1, 1).
+		AddRow(blockId2.String(), nodeID2, 1).
+		AddRow(blockId2.String(), nodeID3, 1)
+
+	// Expectation for the query
+	mock.ExpectQuery("SELECT (.+)").WithArgs(inodeID.String()).WillReturnRows(rows)
+
+	// Call the Get function
+	et, err := iNodeRepo.Get(context.Background(), inodeID, nil)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	// Assert the returned entity
+	expectedBlocks := []*entity.BlockTarget{
+		{ID: blockId1, NodeIDs: []string{nodeID1, nodeID2}},
+		{ID: blockId2, NodeIDs: []string{nodeID1, nodeID2, nodeID3}},
+	}
+	assert.Equal(t, expectedBlocks, et.GetBlocks())
+
+	// Check if all expectations were met
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unfulfilled expectations: %s", err)
+	}
+}
+
+func TestCreate(t *testing.T) {
+	// Create a new mock database connection
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Failed to create mock: %v", err)
+	}
+	defer db.Close()
+
+	// Create a new instance of your repository
+	iNodeRepo := &INodeRepo{db: db}
+
+	// Prepare a sample INode entity
+	blockID1 := uuid.New()
+	blockID2 := uuid.New()
+
+	nodeID1 := "A"
+	nodeID2 := "B"
+
+	blockTarget := []*entity.BlockTarget{
+		{
+			ID:      blockID1,
+			NodeIDs: []string{nodeID1, nodeID2},
+		},
+		{
+			ID:      blockID2,
+			NodeIDs: []string{nodeID1, nodeID2},
+		},
+	}
+
+	iNodeID := uuid.New()
+	iNode := &entity.INode{}
+	iNode.SetID(iNodeID)
+	iNode.SetBlocks(blockTarget)
+	iNode.SetAllBlockIds([]uuid.UUID{blockID1, blockID2})
+
+	// Prepare expected query and values
+	expectedQuery := `INSERT INTO i_nodes_blocks (i_node_id,blocks_id,blocks_index,node_id) VALUES (($1, $2, $3, $4), ($5, $6, $7, $8), ($9, $10, $11, $12), ($13, $14, $15, $16))`
+	expectedValues := []driver.Value{
+		iNodeID.String(),
+		blockID1.String(),
+		0,
+		nodeID1,
+		iNodeID.String(),
+		blockID1.String(),
+		0,
+		nodeID2,
+		iNodeID.String(),
+		blockID2.String(),
+		1,
+		nodeID1,
+		iNodeID.String(),
+		blockID2.String(),
+		1,
+		nodeID2,
+	}
+
+	// Expectation for the query
+	mock.ExpectExec(expectedQuery).WithArgs(expectedValues...).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// Call the Create function
+	err = iNodeRepo.Create(context.Background(), iNode, nil)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	// Check if all expectations were met
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unfulfilled expectations: %s", err)
 	}
 }
