@@ -3,11 +3,15 @@ package impl
 import (
 	"context"
 	"fmt"
+	"log"
 
 	consul "github.com/hashicorp/consul/api"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	pkgSvc "github.com/hdkef/hadoop/pkg/services"
 )
+
+type ServiceRegistryConfig struct {
+}
 
 type ServiceRegistry struct {
 	c *consul.Client
@@ -40,7 +44,46 @@ func (s *ServiceRegistry) GetAll(ctx context.Context, servicesName string, tag s
 	return svd, nil
 }
 
-func NewServiceRegistry() pkgSvc.ServiceRegistry {
+func (s *ServiceRegistry) RegisterDataNode(id string, serviceName string, grpcport int, address string) {
+
+	config := consul.DefaultConfig()
+	cl, err := consul.NewClient(config)
+	if err != nil {
+		panic(err)
+	}
+
+	registeration := &consul.AgentServiceRegistration{
+		ID:      id,
+		Name:    "dataNode",
+		Port:    grpcport,
+		Address: address,
+		Check: &consul.AgentServiceCheck{
+			GRPC:     fmt.Sprintf("%s/%s", address, "Check"),
+			Interval: "1s",
+			Timeout:  "30s",
+		},
+	}
+
+	regiErr := cl.Agent().ServiceRegister(registeration)
+	if regiErr != nil {
+		log.Panic(regiErr)
+		log.Printf("Failed to register service: %s:%v ", address, grpcport)
+	} else {
+		log.Printf("successfully register service: %s:%v", address, grpcport)
+	}
+
+}
+
+func NewServiceRegistryConfig() *ServiceRegistryConfig {
+	return &ServiceRegistryConfig{}
+}
+
+func NewServiceRegistry(cfg *ServiceRegistryConfig) pkgSvc.ServiceRegistry {
+
+	if cfg == nil {
+		panic("config is nil")
+	}
+
 	config := consul.DefaultConfig()
 	c, err := consul.NewClient(config)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 
 	pkgRepoDragonfly "github.com/hdkef/hadoop/pkg/repository/dragonfly"
 	pkgRepoPostgres "github.com/hdkef/hadoop/pkg/repository/postgres"
+	pkgSvc "github.com/hdkef/hadoop/pkg/services/impl"
 )
 
 const (
@@ -18,12 +19,13 @@ const (
 )
 
 type Config struct {
-	ReplicationTarget uint32
-	BlockSplitTarget  uint32
-	MinLeaseTime      time.Duration
-	DragonFlyConfig   *pkgRepoDragonfly.DragonFlyConfig
-	PostgresConfig    *pkgRepoPostgres.PostgresConfig
-	NameNodePort      uint32
+	ReplicationTarget     uint32
+	BlockSplitTarget      uint32
+	MinLeaseTime          time.Duration
+	DragonFlyConfig       *pkgRepoDragonfly.DragonFlyConfig
+	PostgresConfig        *pkgRepoPostgres.PostgresConfig
+	NameNodePort          uint32
+	ServiceRegistryConfig *pkgSvc.ServiceRegistryConfig
 }
 
 func NewConfig() *Config {
@@ -73,11 +75,12 @@ func NewConfig() *Config {
 	}
 
 	return &Config{
-		ReplicationTarget: uint32(replTargetVal),
-		BlockSplitTarget:  uint32(blockSplitTargetVal),
-		MinLeaseTime:      minLeaseTimeVal,
-		PostgresConfig:    pkgRepoPostgres.NewPostgresConfig(),
-		DragonFlyConfig:   pkgRepoDragonfly.NewDragonFlyConfig(),
-		NameNodePort:      uint32(nameNodePortVal),
+		ReplicationTarget:     uint32(replTargetVal),
+		BlockSplitTarget:      uint32(blockSplitTargetVal),
+		MinLeaseTime:          minLeaseTimeVal,
+		PostgresConfig:        pkgRepoPostgres.NewPostgresConfig(),
+		DragonFlyConfig:       pkgRepoDragonfly.NewDragonFlyConfig(),
+		NameNodePort:          uint32(nameNodePortVal),
+		ServiceRegistryConfig: pkgSvc.NewServiceRegistryConfig(),
 	}
 }

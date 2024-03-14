@@ -7,13 +7,18 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/hdkef/hadoop/pkg/entity"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	pkgSvc "github.com/hdkef/hadoop/pkg/services"
 	nameNodeProto "github.com/hdkef/hadoop/proto/nameNode"
 	"github.com/hdkef/hadoop/services/client/service"
 	"google.golang.org/grpc"
 )
+
+type NameNodeServiceDto struct {
+	NameNodeCache   map[int]*pkgEt.ServiceDiscovery
+	ServiceRegistry *pkgSvc.ServiceRegistry
+	Mtx             *sync.Mutex
+}
 
 type NameNodeService struct {
 	nameNodeCache   map[int]*pkgEt.ServiceDiscovery
@@ -99,7 +104,7 @@ func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.Create
 	et := &pkgEt.QueryNodeTarget{}
 
 	allBlockID := []uuid.UUID{}
-	nodeTarget := []*entity.NodeTarget{}
+	nodeTarget := []*pkgEt.NodeTarget{}
 
 	for _, v := range resp.GetAllBlockId() {
 		b, err := uuid.FromBytes(v)
@@ -110,7 +115,7 @@ func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.Create
 	}
 
 	for _, v := range resp.GetNodeTarget() {
-		newNd := &entity.NodeTarget{}
+		newNd := &pkgEt.NodeTarget{}
 
 		bID, err := uuid.FromBytes(v.GetBlockID())
 		if err != nil {
@@ -142,6 +147,23 @@ func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.Create
 	return et, nil
 }
 
-func NewNameNodeService() service.NameNodeService {
-	return &NameNodeService{}
+func NewNameNodeService(dto *NameNodeServiceDto) service.NameNodeService {
+
+	if dto.NameNodeCache == nil {
+		panic("nameNodeCache nil")
+	}
+
+	if dto.ServiceRegistry == nil {
+		panic("serviceRegistry nil")
+	}
+
+	if dto.Mtx == nil {
+		panic("mtx nil")
+	}
+
+	return &NameNodeService{
+		nameNodeCache:   dto.NameNodeCache,
+		serviceRegistry: *dto.ServiceRegistry,
+		mtx:             dto.Mtx,
+	}
 }

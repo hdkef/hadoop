@@ -4,22 +4,27 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	pkgSvc "github.com/hdkef/hadoop/pkg/services/impl"
 )
 
-const NODE_ID = "NODE_ID"
-const GRPC_PORT = "GRPC_PORT"
-const ADDRESS = "ADDRESS"
-const NAME_NODE_ADDRESS = "NAME_NODE_ADDRESS"
-const NAME_NODE_PORT = "NAME_NODE_PORT"
-const STORAGE_ROOT = "STORAGE_ROOT"
+const (
+	NODE_ID           = "NODE_ID"
+	GRPC_PORT         = "GRPC_PORT"
+	ADDRESS           = "ADDRESS"
+	NAME_NODE_ADDRESS = "NAME_NODE_ADDRESS"
+	NAME_NODE_PORT    = "NAME_NODE_PORT"
+	STORAGE_ROOT      = "STORAGE_ROOT"
+)
 
 type Config struct {
-	NodeId          string
-	GrpcPort        int
-	Address         string
-	NameNodeAddress string
-	NameNodePort    int
-	StorageRoot     string
+	NodeId                string
+	GrpcPort              int
+	Address               string
+	NameNodeAddress       string
+	NameNodePort          int
+	StorageRoot           string
+	ServiceRegistryConfig *pkgSvc.ServiceRegistryConfig
 }
 
 func NewConfig() *Config {
@@ -65,11 +70,12 @@ func NewConfig() *Config {
 	}
 
 	return &Config{
-		NodeId:          nodeId,
-		GrpcPort:        grpcPortVal,
-		Address:         address,
-		NameNodeAddress: nameNodeAddress,
-		NameNodePort:    nameNodePortVal,
-		StorageRoot:     storageRoot,
+		NodeId:                nodeId,
+		GrpcPort:              grpcPortVal,
+		Address:               address,
+		NameNodeAddress:       nameNodeAddress,
+		NameNodePort:          nameNodePortVal,
+		StorageRoot:           storageRoot,
+		ServiceRegistryConfig: pkgSvc.NewServiceRegistryConfig(),
 	}
 }

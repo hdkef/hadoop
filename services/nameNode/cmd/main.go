@@ -49,7 +49,7 @@ func main() {
 		DataNodeService:  &dataNodeSvc,
 		MetadataRepo:     &metadataRepo,
 	})
-	serviceRegistry := pkgSvc.NewServiceRegistry()
+	serviceRegistry := pkgSvc.NewServiceRegistry(cfg.ServiceRegistryConfig)
 	transactionInjector := pkgTransactionable.NewTransactionInjector(db)
 
 	// init usecase

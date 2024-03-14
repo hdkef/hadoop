@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 
+	pkgSvc "github.com/hdkef/hadoop/pkg/services/impl"
 	"github.com/hdkef/hadoop/services/dataNode/config"
 	"github.com/hdkef/hadoop/services/dataNode/delivery/grpc"
 	serviceImpl "github.com/hdkef/hadoop/services/dataNode/service/impl"
@@ -23,12 +24,12 @@ func main() {
 	}
 
 	// register dataNode to service registry
-	svcRegistry := serviceImpl.NewServiceRegistry(cfg)
-	svcRegistry.RegisterDataNode()
+	svcRegistry := pkgSvc.NewServiceRegistry(cfg.ServiceRegistryConfig)
+	svcRegistry.RegisterDataNode(cfg.NodeId, "dataNode", cfg.GrpcPort, cfg.Address)
 
 	// init usecase
 	dataNodeService := serviceImpl.NewDataNodeService()
-	writeUC := usecaseImpl.NewWriteUsecase(cfg, dataNodeService)
+	writeUC := usecaseImpl.NewWriteUsecase(cfg, &dataNodeService)
 
 	log.Printf("dataNode %s will run on address %s & grpc port %d", cfg.NodeId, cfg.Address, cfg.GrpcPort)
 

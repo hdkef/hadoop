@@ -11,14 +11,18 @@ type WriteUsecaseImpl struct {
 	dataNodeService service.DataNodeService
 }
 
-func NewWriteUsecase(cfg *config.Config, dataNodeService service.DataNodeService) usecase.WriteUsecase {
+func NewWriteUsecase(cfg *config.Config, dataNodeService *service.DataNodeService) usecase.WriteUsecase {
 
 	if cfg == nil {
 		panic("nil config")
 	}
 
+	if dataNodeService == nil {
+		panic("dataNodeService nil")
+	}
+
 	return &WriteUsecaseImpl{
 		cfg:             cfg,
-		dataNodeService: dataNodeService,
+		dataNodeService: *dataNodeService,
 	}
 }

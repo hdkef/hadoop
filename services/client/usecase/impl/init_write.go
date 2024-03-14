@@ -10,8 +10,18 @@ type WriteUsecaseImpl struct {
 	nameNodeService service.NameNodeService
 }
 
-func NewWriteUsecase(dataNodeService service.DataNodeService) usecase.WriteUsecase {
+func NewWriteUsecase(dataNodeService *service.DataNodeService, nameNodeService *service.NameNodeService) usecase.WriteUsecase {
+
+	if dataNodeService == nil {
+		panic("dataNodeService is nil")
+	}
+
+	if nameNodeService == nil {
+		panic("nameNodeService is nil")
+	}
+
 	return &WriteUsecaseImpl{
-		dataNodeService: dataNodeService,
+		dataNodeService: *dataNodeService,
+		nameNodeService: *nameNodeService,
 	}
 }
