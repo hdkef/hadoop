@@ -39,6 +39,8 @@ func (i *INodeRepo) Create(ctx context.Context, inode *entity.INode, tx *pkgRepo
 		if err != nil {
 			return err
 		}
+
+		return nil
 	}
 
 	// else

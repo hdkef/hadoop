@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	queryInsertTransactions = ""
-	queryGetransactionsByID = ""
+	queryInsertTransactions = "INSERT INTO transactions (is_committed,created_at,lease_time_in_sec,protobuf_bytes) VALUES ($1,$2,$3,$4)"
+	queryGetransactionsByID = "SELECT is_committed,created_at,lease_time_in_sec,protobuf_bytes FROM transactions WHERE id = $1"
 )
 
 type TransactionsRepo struct {
@@ -51,6 +51,8 @@ func (t *TransactionsRepo) Add(ctx context.Context, et *entity.Transactions, tx 
 		if err != nil {
 			return err
 		}
+
+		return nil
 	}
 
 	// else
