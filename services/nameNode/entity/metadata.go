@@ -10,11 +10,12 @@ const (
 type MetadataType uint8
 
 type Metadata struct {
-	parentPath string
-	path       string
-	mtype      MetadataType
-	iNodeID    uuid.UUID
-	hash       string
+	parentPath  string
+	path        string
+	mtype       MetadataType
+	iNodeID     uuid.UUID
+	hash        string
+	allBlockIDs []uuid.UUID
 }
 
 // Getter methods
@@ -57,4 +58,12 @@ func (m *Metadata) GetHash() string {
 
 func (m *Metadata) SetHash(val string) {
 	m.hash = val
+}
+
+func (t *Metadata) SetAllBlockIds(val []uuid.UUID) {
+	t.allBlockIDs = val
+}
+
+func (t *Metadata) GetAllBlockIds() []uuid.UUID {
+	return t.allBlockIDs
 }

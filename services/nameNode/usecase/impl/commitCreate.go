@@ -27,10 +27,11 @@ func (w *WriteRequestUsecaseImpl) CommitTransactions(ctx context.Context, txID u
 	iNode := &entity.INode{}
 	iNode.SetID(tx.GetID())
 	iNode.SetBlocks(tx.GetBlockTaret())
+	iNode.SetAllBlockIds(tx.GetMetadata().GetAllBlockIds())
 
 	err = w.iNodeRepo.Create(ctx, iNode, transactionable)
 	if err != nil {
-		transactionable.Rollback()
+		transactionable.Tx.Rollback()
 		return err
 	}
 
@@ -38,19 +39,19 @@ func (w *WriteRequestUsecaseImpl) CommitTransactions(ctx context.Context, txID u
 
 	err = w.metadataRepo.Touch(ctx, tx.GetMetadata(), transactionable)
 	if err != nil {
-		transactionable.Rollback()
+		transactionable.Tx.Rollback()
 		return err
 	}
 
 	// update transaction checkpoint
 	err = w.transactionsRepo.Commit(ctx, tx.GetID(), transactionable)
 	if err != nil {
-		transactionable.Rollback()
+		transactionable.Tx.Rollback()
 		return err
 	}
 
 	// commit db transactions
-	transactionable.Commit()
+	transactionable.Tx.Commit()
 
 	return nil
 }

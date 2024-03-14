@@ -94,7 +94,6 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 
 	transactions := &entity.Transactions{}
 	transactions.SetID(uuid.New())
-	transactions.SetMetadata(metadata)
 	transactions.SetAction(entity.TRANSACTION_ACTION_CREATE)
 	transactions.SetLeaseTimeInSecond(leaseTimeInSec)
 
@@ -120,6 +119,8 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 	w.mtx.Unlock()
 
 	transactions.SetBlockTarget(blockTargets)
+	metadata.SetAllBlockIds(allBlockIDs)
+	transactions.SetMetadata(metadata)
 
 	err = w.transactionsRepo.Add(ctx, transactions, nil)
 	if err != nil {
