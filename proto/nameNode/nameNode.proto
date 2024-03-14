@@ -23,7 +23,7 @@ message QueryNodeTargetCreateReq{
   uint32 replicationTarget = 1;
 	uint32 blockSplitTarget  = 2;
 	uint64 fileSize          = 3;
-	uint64 leaseTimeInSec    = 4;
+	uint32 leaseTimeInSec    = 4;
 	string path              = 5;
 	string hash              = 6;
 }

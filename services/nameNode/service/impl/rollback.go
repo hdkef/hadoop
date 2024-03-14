@@ -11,11 +11,19 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+type RollbackServiceDto struct {
+	DataNodeCache    map[string]*pkgEt.ServiceDiscovery
+	Mtx              *sync.Mutex
+	TransactionsRepo *repository.TransactionsRepo
+	DataNodeService  *service.DataNodeService
+	MetadataRepo     *repository.MetadataRepo
+}
+
 type RollbackService struct {
 	dataNodeCache    map[string]*pkgEt.ServiceDiscovery
 	mtx              *sync.Mutex
 	transactionsRepo repository.TransactionsRepo
-	dataNodeService  DataNodeService
+	dataNodeService  service.DataNodeService
 	metadataRepo     repository.MetadataRepo
 }
 
@@ -57,6 +65,33 @@ func (r *RollbackService) Rollback(ctx context.Context, tx *entity.Transactions)
 	return r.transactionsRepo.RolledBack(ctx, tx.GetID(), nil)
 }
 
-func NewRollbackService() service.RollbackService {
-	return &RollbackService{}
+func NewRollbackService(dto *RollbackServiceDto) service.RollbackService {
+
+	if dto.DataNodeCache == nil {
+		panic("dataNodeCache is nil")
+	}
+
+	if dto.Mtx == nil {
+		panic("mtx is nil")
+	}
+
+	if dto.TransactionsRepo == nil {
+		panic("transactionRepo is nil")
+	}
+
+	if dto.DataNodeService == nil {
+		panic("dataNodeService is nil")
+	}
+
+	if dto.MetadataRepo == nil {
+		panic("metadataRepo is nil")
+	}
+
+	return &RollbackService{
+		dataNodeCache:    dto.DataNodeCache,
+		mtx:              dto.Mtx,
+		transactionsRepo: *dto.TransactionsRepo,
+		dataNodeService:  *dto.DataNodeService,
+		metadataRepo:     *dto.MetadataRepo,
+	}
 }

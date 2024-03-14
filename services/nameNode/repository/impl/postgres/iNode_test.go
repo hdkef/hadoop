@@ -87,8 +87,7 @@ func TestINodeRepo_queryInsert(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &INodeRepo{
-				db:        tt.fields.db,
-				TableName: "i_nodes_blocks",
+				db: tt.fields.db,
 			}
 			got, got1, err := i.queryInsert(tt.args.inode)
 			if (err != nil) != tt.wantErr {
@@ -110,7 +109,7 @@ func TestGet(t *testing.T) {
 	defer db.Close()
 
 	// Create a new instance of your repository
-	iNodeRepo := &INodeRepo{db: db, TableName: "i_nodes_blocks"}
+	iNodeRepo := &INodeRepo{db: db}
 	blockId1 := uuid.New()
 	blockId2 := uuid.New()
 	nodeID1 := "A"
@@ -157,7 +156,7 @@ func TestCreate(t *testing.T) {
 	defer db.Close()
 
 	// Create a new instance of your repository
-	iNodeRepo := &INodeRepo{db: db, TableName: "i_nodes_blocks"}
+	iNodeRepo := &INodeRepo{db: db}
 
 	// Prepare a sample INode entity
 	blockID1 := uuid.New()

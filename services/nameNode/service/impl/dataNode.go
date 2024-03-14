@@ -8,11 +8,14 @@ import (
 	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
 	"google.golang.org/grpc"
 
+	"github.com/hdkef/hadoop/services/nameNode/config"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 	"github.com/hdkef/hadoop/services/nameNode/service"
 )
 
-type DataNodeService struct{}
+type DataNodeService struct {
+	cfg *config.Config
+}
 
 // Rollback implements service.DataNodeService.
 func (d *DataNodeService) Rollback(ctx context.Context, dto *entity.RollbackDto) error {
@@ -61,6 +64,13 @@ func (d *DataNodeService) QueryStorage(ctx context.Context, svd *pkgEt.ServiceDi
 	return nd, nil
 }
 
-func NewDataNodeService() service.DataNodeService {
-	return &DataNodeService{}
+func NewDataNodeService(cfg *config.Config) service.DataNodeService {
+
+	if cfg == nil {
+		panic("nil config")
+	}
+
+	return &DataNodeService{
+		cfg: cfg,
+	}
 }

@@ -13,9 +13,12 @@ import (
 	"github.com/hdkef/hadoop/services/nameNode/repository"
 )
 
+const (
+	queryGetByINodeID = "SELECT FROM i_nodes_blocks (blocks_id,node_id,blocks_index,size) WHERE i_node_id = $1"
+)
+
 type INodeRepo struct {
-	db        *sql.DB
-	TableName string
+	db *sql.DB
 }
 
 // Create implements repository.INodeRepo.
@@ -63,8 +66,6 @@ func (i *INodeRepo) Get(ctx context.Context, inodeID uuid.UUID, tx *pkgRepoTr.Tr
 
 	var rows *sql.Rows
 	var err error
-
-	queryGetByINodeID := fmt.Sprintf("SELECT FROM %s (blocks_id,node_id,blocks_index,size) WHERE i_node_id = $1", i.TableName)
 
 	if tx != nil {
 		rows, err = tx.Tx.QueryContext(ctx, queryGetByINodeID, inodeID.String())
@@ -123,6 +124,11 @@ func (i *INodeRepo) Get(ctx context.Context, inodeID uuid.UUID, tx *pkgRepoTr.Tr
 }
 
 func NewINodeRepo(db *sql.DB) repository.INodeRepo {
+
+	if db == nil {
+		panic("db is nil")
+	}
+
 	return &INodeRepo{
 		db: db,
 	}
@@ -134,7 +140,7 @@ func (i *INodeRepo) queryInsert(inode *entity.INode) (string, []interface{}, err
 		return "", nil, errors.New("unmatch size of blocks & blocks id")
 	}
 
-	query := fmt.Sprintf("INSERT INTO %s (i_node_id,blocks_id,blocks_index,node_id,size) VALUES ", i.TableName)
+	query := "INSERT INTO i_nodes_blocks (i_node_id,blocks_id,blocks_index,node_id,size) VALUES "
 
 	var placeholders []string
 	var values []interface{}

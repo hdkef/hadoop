@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/google/uuid"
+	"github.com/hdkef/hadoop/services/nameNode/config"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 	"github.com/hdkef/hadoop/services/nameNode/service"
 )
@@ -28,6 +29,7 @@ func (a ByTotalStorage) Less(i, j int) bool {
 }
 
 type NodeAllocator struct {
+	cfg *config.Config
 }
 
 // Allocate implements service.NodeAllocator.
@@ -106,6 +108,12 @@ func (n *NodeAllocator) Allocate(nodeStorage []*entity.NodeStorage, replicationT
 	return blocks, nodeStorage, nil
 }
 
-func NewNodeAllocator() service.NodeAllocator {
-	return &NodeAllocator{}
+func NewNodeAllocator(cfg *config.Config) service.NodeAllocator {
+	if cfg == nil {
+		panic("nil config")
+	}
+
+	return &NodeAllocator{
+		cfg: cfg,
+	}
 }

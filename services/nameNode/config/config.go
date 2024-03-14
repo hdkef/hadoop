@@ -14,6 +14,7 @@ const (
 	REPLICATION_TARGET = "REPLICATION_TARGET"
 	BLOCK_SPLIT_TARGET = "BLOCK_SPLIT_TARGET"
 	MIN_LEASE_TIME     = "MIN_LEASE_TIME"
+	NAME_NODE_PORT     = "NAME_NODE_PORT"
 )
 
 type Config struct {
@@ -22,6 +23,7 @@ type Config struct {
 	MinLeaseTime      time.Duration
 	DragonFlyConfig   *pkgRepoDragonfly.DragonFlyConfig
 	PostgresConfig    *pkgRepoPostgres.PostgresConfig
+	NameNodePort      uint32
 }
 
 func NewConfig() *Config {
@@ -59,11 +61,23 @@ func NewConfig() *Config {
 		panic(fmt.Sprintf("%s %s", MIN_LEASE_TIME, err.Error()))
 	}
 
+	nameNodePort := os.Getenv(NAME_NODE_PORT)
+
+	if nameNodePort == "" {
+		panic(fmt.Sprintf("%s env not found", NAME_NODE_PORT))
+	}
+
+	nameNodePortVal, err := strconv.Atoi(nameNodePort)
+	if err != nil {
+		panic(fmt.Sprintf("%s %s", NAME_NODE_PORT, err.Error()))
+	}
+
 	return &Config{
 		ReplicationTarget: uint32(replTargetVal),
 		BlockSplitTarget:  uint32(blockSplitTargetVal),
 		MinLeaseTime:      minLeaseTimeVal,
 		PostgresConfig:    pkgRepoPostgres.NewPostgresConfig(),
 		DragonFlyConfig:   pkgRepoDragonfly.NewDragonFlyConfig(),
+		NameNodePort:      uint32(nameNodePortVal),
 	}
 }

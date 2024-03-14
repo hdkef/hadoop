@@ -10,7 +10,7 @@ type CreateReqDto struct {
 	replicationTarget uint32
 	blockSplitTarget  uint32
 	fileSize          uint64
-	leaseTimeInSec    uint64
+	leaseTimeInSec    uint32
 	path              string
 	hash              string
 }
@@ -28,7 +28,7 @@ func (c *CreateReqDto) GetFileSize() uint64 {
 	return c.fileSize
 }
 
-func (c *CreateReqDto) GetLeaseTimeInSec() uint64 {
+func (c *CreateReqDto) GetLeaseTimeInSec() uint32 {
 	return c.leaseTimeInSec
 }
 
@@ -53,7 +53,7 @@ func (c *CreateReqDto) SetFileSize(fileSize uint64) {
 	c.fileSize = fileSize
 }
 
-func (c *CreateReqDto) SetLeaseTimeInSec(leaseTimeInSec uint64) {
+func (c *CreateReqDto) SetLeaseTimeInSec(leaseTimeInSec uint32) {
 	c.leaseTimeInSec = leaseTimeInSec
 }
 

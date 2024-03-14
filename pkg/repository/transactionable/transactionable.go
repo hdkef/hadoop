@@ -35,6 +35,9 @@ func (t *TransactionInjector) Rollback(tx *Transactionable) error {
 }
 
 func NewTransactionInjector(db *sql.DB) *TransactionInjector {
+	if db == nil {
+		panic("db is nil")
+	}
 	return &TransactionInjector{
 		db: db,
 	}

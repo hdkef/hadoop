@@ -62,9 +62,12 @@ func (n *NodeStorageRepo) SetNodeStorage(ctx context.Context, et *entity.NodeSto
 	return n.client.Set(ctx, key, data, nil)
 }
 
-func NewNodeStorage(client pkgRepo.KeyValueRepository) repository.NodeStorageRepo {
+func NewNodeStorage(client *pkgRepo.KeyValueRepository) repository.NodeStorageRepo {
+	if client == nil {
+		panic("db is nil")
+	}
 
 	return &NodeStorageRepo{
-		client: client,
+		client: *client,
 	}
 }

@@ -12,8 +12,7 @@ import (
 )
 
 type MetadataRepo struct {
-	db        *sql.DB
-	TableName string
+	db *sql.DB
 }
 
 const (
@@ -137,5 +136,9 @@ func (m *MetadataRepo) Touch(ctx context.Context, et *entity.Metadata, tx *pkgRe
 }
 
 func NewMetadataRepo(db *sql.DB) repository.MetadataRepo {
+	if db == nil {
+		panic("db is nil")
+	}
+
 	return &MetadataRepo{db: db}
 }

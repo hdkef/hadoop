@@ -14,15 +14,19 @@ type handler struct {
 	cfg     *config.Config
 }
 
-func NewGrpcHandler(cfg *config.Config, writeUC usecase.WriteRequestUsecase) *grpc.Server {
+func NewGrpcHandler(cfg *config.Config, writeUC *usecase.WriteRequestUsecase) *grpc.Server {
 
 	if cfg == nil {
 		panic("nil config")
 	}
 
+	if writeUC == nil {
+		panic("writeUC is nil")
+	}
+
 	grpcServer := grpc.NewServer()
 	handler := &handler{
-		writeUC: writeUC,
+		writeUC: *writeUC,
 		cfg:     cfg,
 	}
 

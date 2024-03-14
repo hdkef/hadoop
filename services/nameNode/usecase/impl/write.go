@@ -16,7 +16,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 
 	replTarget := w.cfg.ReplicationTarget
 	blockSplitTarget := w.cfg.BlockSplitTarget
-	leaseTimeInSec := uint64(w.cfg.MinLeaseTime.Seconds())
+	leaseTimeInSec := uint32(w.cfg.MinLeaseTime.Seconds())
 	if dto.GetBlockSplitTarget() != 0 {
 		blockSplitTarget = dto.GetBlockSplitTarget()
 	}

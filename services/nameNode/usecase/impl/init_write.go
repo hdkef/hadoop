@@ -6,13 +6,26 @@ import (
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	pkgRepo "github.com/hdkef/hadoop/pkg/repository/transactionable"
 	pkgSvc "github.com/hdkef/hadoop/pkg/services"
-	pkgSvcImpl "github.com/hdkef/hadoop/pkg/services/impl"
 	"github.com/hdkef/hadoop/services/nameNode/config"
 	"github.com/hdkef/hadoop/services/nameNode/repository"
 	"github.com/hdkef/hadoop/services/nameNode/service"
-	svcImpl "github.com/hdkef/hadoop/services/nameNode/service/impl"
 	"github.com/hdkef/hadoop/services/nameNode/usecase"
 )
+
+type WriteRequestUsecaseDto struct {
+	MetadataRepo        *repository.MetadataRepo
+	NodeStorageRepo     *repository.NodeStorageRepo
+	INodeRepo           *repository.INodeRepo
+	ServiceRegistry     *pkgSvc.ServiceRegistry
+	DataNodeCache       map[string]*pkgEt.ServiceDiscovery
+	TransactionsRepo    *repository.TransactionsRepo
+	Mtx                 *sync.Mutex
+	Cfg                 *config.Config
+	NodeAllocator       *service.NodeAllocator
+	DataNodeService     *service.DataNodeService
+	RollbackService     *service.RollbackService
+	TransactionInjector *pkgRepo.TransactionInjector
+}
 
 type WriteRequestUsecaseImpl struct {
 	metadataRepo        repository.MetadataRepo
@@ -29,14 +42,63 @@ type WriteRequestUsecaseImpl struct {
 	transactionInjector *pkgRepo.TransactionInjector
 }
 
-func NewWriteUsecase(cfg *config.Config, dataNodeCache map[string]*pkgEt.ServiceDiscovery, mtx *sync.Mutex) usecase.WriteRequestUsecase {
+func NewWriteUsecase(dto *WriteRequestUsecaseDto) usecase.WriteRequestUsecase {
+
+	if dto.MetadataRepo == nil {
+		panic("metadataRepo nil")
+	}
+
+	if dto.NodeStorageRepo == nil {
+		panic("nodeStorageRepo nil")
+	}
+
+	if dto.INodeRepo == nil {
+		panic("iNodeRepo nil")
+	}
+
+	if dto.ServiceRegistry == nil {
+		panic("serviceRegistry nil")
+	}
+
+	if dto.TransactionsRepo == nil {
+		panic("transactionsRepo nil")
+	}
+
+	if dto.Mtx == nil {
+		panic("mtx nil")
+	}
+
+	if dto.Cfg == nil {
+		panic("cfg nil")
+	}
+
+	if dto.NodeAllocator == nil {
+		panic("nodeAllocator nil")
+	}
+
+	if dto.DataNodeService == nil {
+		panic("dataNodeService nil")
+	}
+
+	if dto.RollbackService == nil {
+		panic("rollbackService nil")
+	}
+
+	if dto.TransactionInjector == nil {
+		panic("transactionInjector nil")
+	}
+
 	return &WriteRequestUsecaseImpl{
-		dataNodeCache:       dataNodeCache,
-		mtx:                 mtx,
-		nodeAllocator:       svcImpl.NewNodeAllocator(),
-		dataNodeService:     svcImpl.NewDataNodeService(),
-		serviceRegistry:     pkgSvcImpl.NewServiceRegistry(),
-		cfg:                 cfg,
-		transactionInjector: pkgRepo.NewTransactionInjector(nil),
+		metadataRepo:        *dto.MetadataRepo,
+		nodeStorageRepo:     *dto.NodeStorageRepo,
+		iNodeRepo:           *dto.INodeRepo,
+		serviceRegistry:     *dto.ServiceRegistry,
+		transactionsRepo:    *dto.TransactionsRepo,
+		mtx:                 dto.Mtx,
+		cfg:                 dto.Cfg,
+		nodeAllocator:       *dto.NodeAllocator,
+		dataNodeService:     *dto.DataNodeService,
+		rollbackService:     *dto.RollbackService,
+		transactionInjector: dto.TransactionInjector,
 	}
 }

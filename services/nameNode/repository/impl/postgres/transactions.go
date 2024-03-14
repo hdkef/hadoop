@@ -85,7 +85,7 @@ func (t *TransactionsRepo) Get(ctx context.Context, transactionID uuid.UUID, tx 
 
 		isCommited := false
 		createdAt := time.Time{}
-		leaseTimeInSecond := uint64(0)
+		leaseTimeInSecond := uint32(0)
 		protoBufBytes := []byte{}
 		protoBuf := &messageProto.Transactions{}
 
@@ -239,6 +239,10 @@ func protoToTransactions(et *entity.Transactions, proto *messageProto.Transactio
 }
 
 func NewTransactionsRepo(db *sql.DB) repository.TransactionsRepo {
+	if db == nil {
+		panic("db is nil")
+	}
+
 	return &TransactionsRepo{
 		db: db,
 	}

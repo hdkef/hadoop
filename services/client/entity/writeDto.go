@@ -11,7 +11,7 @@ type CreateDto struct {
 	replicationTarget uint32
 	blockSplitTarget  uint32
 	file              []byte
-	leaseTimeInSec    uint64
+	leaseTimeInSec    uint32
 	path              string
 }
 
@@ -51,7 +51,7 @@ func (c *CreateDto) SetFile(value []byte) {
 	c.file = value
 }
 
-func (c *CreateDto) SetLeaseTimeInSec(value uint64) {
+func (c *CreateDto) SetLeaseTimeInSec(value uint32) {
 	c.leaseTimeInSec = value
 }
 
@@ -72,7 +72,7 @@ func (c *CreateDto) GetFile() []byte {
 	return c.file
 }
 
-func (c *CreateDto) GetLeaseTimeInSec() uint64 {
+func (c *CreateDto) GetLeaseTimeInSec() uint32 {
 	return c.leaseTimeInSec
 }
 

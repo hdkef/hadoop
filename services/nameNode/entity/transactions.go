@@ -18,7 +18,7 @@ type Transactions struct {
 	id                uuid.UUID
 	isCommitted       bool
 	createdAt         time.Time
-	leaseTimeInSecond uint64
+	leaseTimeInSecond uint32
 	action            TransactionsAction
 	blockTarget       []*BlockTarget
 	metadata          *Metadata
@@ -44,7 +44,7 @@ func (t *Transactions) GetBlockTaret() []*BlockTarget {
 	return t.blockTarget
 }
 
-func (t *Transactions) GetLeaseTimeInSecond() uint64 {
+func (t *Transactions) GetLeaseTimeInSecond() uint32 {
 	return t.leaseTimeInSecond
 }
 
@@ -69,7 +69,7 @@ func (t *Transactions) SetBlockTarget(blockTarget []*BlockTarget) {
 	t.blockTarget = blockTarget
 }
 
-func (t *Transactions) SetLeaseTimeInSecond(leaseTime uint64) {
+func (t *Transactions) SetLeaseTimeInSecond(leaseTime uint32) {
 	t.leaseTimeInSecond = leaseTime
 }
 
