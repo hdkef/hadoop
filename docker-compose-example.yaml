@@ -17,14 +17,14 @@ services:
       MIN_LEASE_TIME: 30s
       NAME_NODE_PORT: 443
       NAME_NODE_ADDRESS: namenode
-      PG_HOST: localhost
+      PG_HOST: host.docker.internal
       PG_USER: postgres
       PG_DB_NAME: postgres
       PG_PASSWORD: postgres
       PG_PORT: 5432
       PG_POOL_SIZE: 5
       PG_POOL_MAX_LIFE: 60s
-      DG_ADDR: localhost
+      DG_ADDR: host.docker.internal
       DG_PASSWORD: redis
       DG_DB: 0
       NODE_ID: "namenode-1"
@@ -32,6 +32,8 @@ services:
       - distributed
     depends_on:
       - consul
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   datanode-1:
     build:
       context: .
@@ -94,3 +96,5 @@ volumes:
   dn-2:
 networks:
   distributed:
+
+# TODO: use postgres and redis container

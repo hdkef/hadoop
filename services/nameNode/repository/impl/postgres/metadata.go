@@ -70,6 +70,9 @@ func (m *MetadataRepo) Get(ctx context.Context, path string, tx *pkgRepoTr.Trans
 
 		err := row.Scan(&parentPath, &path, &mType, &iNodeIdBytes, &hash, &allBlocksIDsBytes)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, nil
+			}
 			return nil, err
 		}
 		md.SetHash(hash)

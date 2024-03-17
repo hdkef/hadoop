@@ -18,6 +18,7 @@ const (
 	queryInsertTransactions = "INSERT INTO transactions (is_committed,created_at,lease_time_in_sec,protobuf_bytes) VALUES ($1,$2,$3,$4)"
 	queryGetransactionsByID = "SELECT is_committed,created_at,lease_time_in_sec,protobuf_bytes FROM transactions WHERE id = $1"
 	queryUpdateIsCommited   = "UPDATE transactions SET is_committed = $1 WHERE id = $2"
+	queryGetOneExpired      = `SELECT * FROM transactions WHERE is_committed = FALSE AND EXTRACT(EPOCH FROM NOW() - created_at) > lease_time_in_sec LIMIT 1;`
 )
 
 type TransactionsRepo struct {
@@ -114,6 +115,9 @@ func (t *TransactionsRepo) Get(ctx context.Context, transactionID uuid.UUID, tx 
 
 		err := row.Scan(&isCommited, &createdAt, &leaseTimeInSecond, &protoBufBytes)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, nil
+			}
 			return nil, err
 		}
 
@@ -139,7 +143,52 @@ func (t *TransactionsRepo) Get(ctx context.Context, transactionID uuid.UUID, tx 
 
 // GetOneExpired implements repository.TransactionsRepo.
 func (t *TransactionsRepo) GetOneExpired(ctx context.Context, tx *pkgRepoTr.Transactionable) (*entity.Transactions, error) {
-	// TODO
+
+	et := &entity.Transactions{}
+
+	var row *sql.Row
+
+	if tx != nil {
+		row = tx.Tx.QueryRowContext(ctx, queryGetOneExpired)
+	} else {
+		row = t.db.QueryRowContext(ctx, queryGetOneExpired)
+	}
+
+	if row != nil {
+
+		isCommited := false
+		createdAt := time.Time{}
+		leaseTimeInSecond := uint32(0)
+		protoBufBytes := []byte{}
+		protoBuf := &messageProto.Transactions{}
+
+		err := row.Scan(&isCommited, &createdAt, &leaseTimeInSecond, &protoBufBytes)
+		if err != nil {
+
+			if err == sql.ErrNoRows {
+				return nil, nil
+			}
+
+			return nil, err
+		}
+
+		et.SetIsCommitted(isCommited)
+		et.SetCreatedAt(createdAt)
+		et.SetLeaseTimeInSecond(leaseTimeInSecond)
+
+		err = proto.Unmarshal(protoBufBytes, protoBuf)
+		if err != nil {
+			return nil, err
+		}
+
+		err = protoToTransactions(et, protoBuf)
+		if err != nil {
+			return nil, err
+		}
+
+		return et, nil
+	}
+
 	return nil, nil
 }
 
