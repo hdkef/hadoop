@@ -16,6 +16,8 @@ const (
 	BLOCK_SPLIT_TARGET = "BLOCK_SPLIT_TARGET"
 	MIN_LEASE_TIME     = "MIN_LEASE_TIME"
 	NAME_NODE_PORT     = "NAME_NODE_PORT"
+	NAME_NODE_ADDRESS  = "NAME_NODE_ADDRESS"
+	NODE_ID            = "NODE_ID"
 )
 
 type Config struct {
@@ -25,7 +27,9 @@ type Config struct {
 	DragonFlyConfig       *pkgRepoDragonfly.DragonFlyConfig
 	PostgresConfig        *pkgRepoPostgres.PostgresConfig
 	NameNodePort          uint32
+	NameNodeAddress       string
 	ServiceRegistryConfig *pkgSvc.ServiceRegistryConfig
+	NodeID                string
 }
 
 func NewConfig() *Config {
@@ -54,7 +58,7 @@ func NewConfig() *Config {
 
 	minLeaseTime := os.Getenv(MIN_LEASE_TIME)
 
-	if blockSplitTarget == "" {
+	if minLeaseTime == "" {
 		panic(fmt.Sprintf("%s env not found", MIN_LEASE_TIME))
 	}
 
@@ -74,6 +78,16 @@ func NewConfig() *Config {
 		panic(fmt.Sprintf("%s %s", NAME_NODE_PORT, err.Error()))
 	}
 
+	address := os.Getenv(NAME_NODE_ADDRESS)
+	if address == "" {
+		panic(fmt.Sprintf("%s env not found", NAME_NODE_ADDRESS))
+	}
+
+	nodeId := os.Getenv(NODE_ID)
+	if nodeId == "" {
+		panic(fmt.Sprintf("%s env not found", NODE_ID))
+	}
+
 	return &Config{
 		ReplicationTarget:     uint32(replTargetVal),
 		BlockSplitTarget:      uint32(blockSplitTargetVal),
@@ -82,5 +96,7 @@ func NewConfig() *Config {
 		DragonFlyConfig:       pkgRepoDragonfly.NewDragonFlyConfig(),
 		NameNodePort:          uint32(nameNodePortVal),
 		ServiceRegistryConfig: pkgSvc.NewServiceRegistryConfig(),
+		NameNodeAddress:       address,
+		NodeID:                nodeId,
 	}
 }

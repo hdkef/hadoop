@@ -11,4 +11,5 @@ CREATE TABLE metadata (
 );
 
 CREATE INDEX idx_parent_path ON metadata(parent_path);
-CREATE INDEX idx_path ON metadata(path) USING HASH;
+CREATE INDEX idx_path ON metadata USING HASH (path);
+ALTER TABLE metadata ADD CONSTRAINT unique_i_node_id UNIQUE (i_node_id);

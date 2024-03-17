@@ -1,0 +1,96 @@
+version: '3'
+services:
+  namenode:
+    build:
+      context: .
+      dockerfile: ./deploy/nameNode/Dockerfile
+    container_name: namenode
+    restart: always
+    ports:
+      - 8000:443
+    expose:
+      - "443"
+    working_dir: /app
+    environment:
+      REPLICATION_TARGET: 2
+      BLOCK_SPLIT_TARGET: 2
+      MIN_LEASE_TIME: 30s
+      NAME_NODE_PORT: 443
+      NAME_NODE_ADDRESS: namenode
+      PG_HOST: localhost
+      PG_USER: postgres
+      PG_DB_NAME: postgres
+      PG_PASSWORD: postgres
+      PG_PORT: 5432
+      PG_POOL_SIZE: 5
+      PG_POOL_MAX_LIFE: 60s
+      DG_ADDR: localhost
+      DG_PASSWORD: redis
+      DG_DB: 0
+      NODE_ID: "namenode-1"
+    networks:
+      - distributed
+    depends_on:
+      - consul
+  datanode-1:
+    build:
+      context: .
+      dockerfile: ./deploy/dataNode/Dockerfile
+    container_name: datanode-1
+    restart: always
+    ports:
+      - 8001:443
+    expose:
+      - "443"
+    working_dir: /app
+    volumes:
+      - dn-1:/app
+    environment:
+      NODE_ID: datanode-1
+      GRPC_PORT: 443
+      ADDRESS: datanode-1
+      NAME_NODE_ADDRESS: namenode
+      NAME_NODE_PORT: 443
+      STORAGE_ROOT: /app
+    networks:
+      - distributed
+    depends_on:
+      - consul
+  datanode-2:
+    build:
+      context: .
+      dockerfile: ./deploy/dataNode/Dockerfile
+    container_name: datanode-2
+    restart: always
+    ports:
+      - 8002:443
+    expose:
+      - "443"
+    working_dir: /app
+    volumes:
+      - dn-2:/app
+    environment:
+      NODE_ID: datanode-2
+      GRPC_PORT: 443
+      ADDRESS: datanode-2
+      NAME_NODE_ADDRESS: namenode
+      NAME_NODE_PORT: 443
+      STORAGE_ROOT: /app
+    networks:
+      - distributed
+    depends_on:
+      - consul
+  consul:
+    image: hashicorp/consul
+    container_name: consul
+    ports:
+      - "8500:8500"  # Expose Consul HTTP API port
+      - "8600:8600/udp"  # Expose Consul DNS interface
+    command: "agent -server -bootstrap-expect=1 -ui -client=0.0.0.0"
+    networks:
+      - distributed
+volumes:
+  dn-1:
+  dn-2:
+networks:
+  distributed:

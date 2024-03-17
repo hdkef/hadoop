@@ -20,6 +20,8 @@ import (
 	svcImpl "github.com/hdkef/hadoop/services/nameNode/service/impl"
 	ucImpl "github.com/hdkef/hadoop/services/nameNode/usecase/impl"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
@@ -50,6 +52,8 @@ func main() {
 		MetadataRepo:     &metadataRepo,
 	})
 	serviceRegistry := pkgSvc.NewServiceRegistry(cfg.ServiceRegistryConfig)
+	serviceRegistry.RegisterNode(cfg.NodeID, "nameNode", int(cfg.NameNodePort), cfg.NameNodeAddress)
+
 	transactionInjector := pkgTransactionable.NewTransactionInjector(db)
 
 	// init usecase
@@ -102,17 +106,25 @@ func main() {
 			})
 
 			err := errGroup.Wait()
-			log.Printf("err %s", err.Error())
+			if err != nil {
+				log.Printf("err %s", err.Error())
+			}
 		}
 	}(cron.C)
 
+	// set up health check responder
+	healthcheck := health.NewServer()
+	healthcheck.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
+
+	healthpb.RegisterHealthServer(server, healthcheck)
+
 	// serve
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.NameNodePort))
-	log.Printf("gRPC server listening on %s", lis.Addr())
-
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
+	log.Printf("gRPC server listening on %s", lis.Addr())
+
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}

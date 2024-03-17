@@ -17,6 +17,7 @@ import (
 const (
 	queryInsertTransactions = "INSERT INTO transactions (is_committed,created_at,lease_time_in_sec,protobuf_bytes) VALUES ($1,$2,$3,$4)"
 	queryGetransactionsByID = "SELECT is_committed,created_at,lease_time_in_sec,protobuf_bytes FROM transactions WHERE id = $1"
+	queryUpdateIsCommited   = "UPDATE transactions SET is_committed = $1 WHERE id = $2"
 )
 
 type TransactionsRepo struct {
@@ -66,7 +67,29 @@ func (t *TransactionsRepo) Add(ctx context.Context, et *entity.Transactions, tx 
 
 // Commit implements repository.TransactionsRepo.
 func (t *TransactionsRepo) Commit(ctx context.Context, transactionID uuid.UUID, tx *pkgRepoTr.Transactionable) error {
-	panic("unimplemented")
+	// if use tx
+	if tx != nil {
+
+		stmt, err := tx.Tx.PrepareContext(ctx, queryUpdateIsCommited)
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(true, transactionID.String())
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// else
+	_, err := t.db.Exec(queryUpdateIsCommited, true, transactionID.String())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Get implements repository.TransactionsRepo.
@@ -116,12 +139,35 @@ func (t *TransactionsRepo) Get(ctx context.Context, transactionID uuid.UUID, tx 
 
 // GetOneExpired implements repository.TransactionsRepo.
 func (t *TransactionsRepo) GetOneExpired(ctx context.Context, tx *pkgRepoTr.Transactionable) (*entity.Transactions, error) {
-	panic("unimplemented")
+	// TODO
+	return nil, nil
 }
 
 // RolledBack implements repository.TransactionsRepo.
 func (t *TransactionsRepo) RolledBack(ctx context.Context, transactionID uuid.UUID, tx *pkgRepoTr.Transactionable) error {
-	panic("unimplemented")
+	// if use tx
+	if tx != nil {
+
+		stmt, err := tx.Tx.PrepareContext(ctx, queryUpdateIsCommited)
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(false, transactionID.String())
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// else
+	_, err := t.db.Exec(queryUpdateIsCommited, false, transactionID.String())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func transactionsToProto(et *entity.Transactions) (*messageProto.Transactions, error) {
