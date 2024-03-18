@@ -1,4 +1,4 @@
-FROM golang:1.20
+FROM golang:1.20 AS builder
 
 WORKDIR /app
 
@@ -6,7 +6,13 @@ COPY . .
 
 RUN go mod tidy
 
-RUN go build -o /app/main /app/services/nameNode/cmd/http/main.go
+RUN go build -o /app/main /app/services/client/cmd/http/main.go
+
+FROM golang:1.20
+
+WORKDIR /app
+
+COPY --from=builder /app/main /app/main
 
 EXPOSE 443
 
