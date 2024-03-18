@@ -3,13 +3,13 @@ package impl
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"sync"
 
 	"github.com/google/uuid"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	"github.com/hdkef/hadoop/pkg/logger"
 	pkgSvc "github.com/hdkef/hadoop/pkg/services"
+	pkgSvcImpl "github.com/hdkef/hadoop/pkg/services/impl"
 	nameNodeProto "github.com/hdkef/hadoop/proto/nameNode"
 	"github.com/hdkef/hadoop/services/client/service"
 	"google.golang.org/grpc"
@@ -25,13 +25,21 @@ type NameNodeService struct {
 	nameNodeCache   map[int]*pkgEt.ServiceDiscovery
 	serviceRegistry pkgSvc.ServiceRegistry
 	mtx             *sync.Mutex
+	loadBalancer    pkgSvc.RoundRobinLoadBalancer
 }
 
 // CommitTransaction implements service.NameNodeService.
 func (n *NameNodeService) CommitTransaction(ctx context.Context, transactionsID uuid.UUID, isSuccess bool) error {
 	// take one nameNode service randomly
 	n.mtx.Lock()
-	nameNodeSvc := n.nameNodeCache[rand.Intn(len(n.nameNodeCache))]
+
+	ptr, err := n.loadBalancer.GetNextPtr(len(n.nameNodeCache))
+	if err != nil {
+		n.mtx.Unlock()
+		return err
+	}
+	nameNodeSvc := n.nameNodeCache[ptr]
+
 	n.mtx.Unlock()
 
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", nameNodeSvc.GetAddress(), nameNodeSvc.GetPort()), grpc.WithInsecure())
@@ -73,19 +81,27 @@ func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.Create
 	// if nameNode empty, query service registry
 	n.mtx.Lock()
 	if len(n.nameNodeCache) == 0 {
+		n.mtx.Unlock()
 		svd, err := n.serviceRegistry.GetAll(ctx, "nameNode", "")
 		if err != nil {
 			logger.LogError(err)
 			return nil, err
 		}
 
+		n.mtx.Lock()
 		for i, v := range svd {
 			n.nameNodeCache[i] = v
 		}
 	}
 
 	// take one nameNode service randomly
-	nameNodeSvc := n.nameNodeCache[rand.Intn(len(n.nameNodeCache))]
+	ptr, err := n.loadBalancer.GetNextPtr(len(n.nameNodeCache))
+	if err != nil {
+		n.mtx.Unlock()
+		return nil, err
+	}
+	nameNodeSvc := n.nameNodeCache[ptr]
+
 	n.mtx.Unlock()
 
 	// query nameNode service
@@ -180,5 +196,6 @@ func NewNameNodeService(dto *NameNodeServiceDto) service.NameNodeService {
 		nameNodeCache:   dto.NameNodeCache,
 		serviceRegistry: *dto.ServiceRegistry,
 		mtx:             dto.Mtx,
+		loadBalancer:    pkgSvcImpl.NewLoadBalancer(&sync.Mutex{}),
 	}
 }
