@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 
+	"github.com/hdkef/hadoop/pkg/logger"
 	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
 	"github.com/hdkef/hadoop/services/dataNode/entity"
 )
@@ -14,6 +15,7 @@ func (g *handler) Create(ctx context.Context, req *dataNodeProto.CreateReq) (*da
 	createDto := &entity.CreateDto{}
 	err := createDto.NewFromProto(req)
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 
@@ -21,6 +23,7 @@ func (g *handler) Create(ctx context.Context, req *dataNodeProto.CreateReq) (*da
 	err = g.writeUC.Create(ctx, createDto)
 
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 

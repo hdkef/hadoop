@@ -145,6 +145,7 @@ func (CreateDto *CreateDto) ToProto() (*dataNodeProto.CreateReq, error) {
 		BlockID:               bID,
 		BlocksData:            CreateDto.blocksData,
 		ReplicationTarget:     CreateDto.replicationTarget,
+		CurrentReplicated:     CreateDto.currentReplicated,
 		ReplicationNodeTarget: nodeTarget,
 	}
 

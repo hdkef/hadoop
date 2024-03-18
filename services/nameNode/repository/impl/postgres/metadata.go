@@ -9,6 +9,7 @@ import (
 	pkgRepoTr "github.com/hdkef/hadoop/pkg/repository/transactionable"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 	"github.com/hdkef/hadoop/services/nameNode/repository"
+	"github.com/lib/pq"
 )
 
 type MetadataRepo struct {
@@ -17,8 +18,9 @@ type MetadataRepo struct {
 
 const (
 	queryMetadataCheckPath = "SELECT EXISTS (SELECT 1 FROM metadata WHERE path = $1)"
-	queryMetadataInsert    = "INSERT INTO metadata (parent_path,path,m_type,i_node_id,hash,all_block_ids) VALUES ($1,$2,$3,$4,$5,%6)"
+	queryMetadataInsert    = "INSERT INTO metadata (parent_path,path,m_type,i_node_id,hash,all_block_ids) VALUES ($1,$2,$3,$4,$5,$6)"
 	queryMetadataGetByPath = "SELECT parent_path,path,m_type,i_node_id,hash,all_block_ids FROM metadata where path = $1"
+	queryMetadataDelete    = "DELETE FROM metadata where path = $1"
 )
 
 // CheckPath implements repository.MetadataRepo.
@@ -44,7 +46,30 @@ func (m *MetadataRepo) CheckPath(ctx context.Context, path string, tx *pkgRepoTr
 
 // Delete implements repository.MetadataRepo.
 func (m *MetadataRepo) Delete(ctx context.Context, metadata *entity.Metadata, tx *pkgRepoTr.Transactionable) error {
-	panic("unimplemented")
+	// if use tx
+	if tx != nil {
+
+		stmt, err := tx.Tx.PrepareContext(ctx, queryMetadataDelete)
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(metadata.GetPath())
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// else
+	_, err := m.db.Exec(queryMetadataDelete, metadata.GetPath())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Get implements repository.MetadataRepo.
@@ -104,14 +129,9 @@ func (m *MetadataRepo) Get(ctx context.Context, path string, tx *pkgRepoTr.Trans
 // Touch implements repository.MetadataRepo.
 func (m *MetadataRepo) Touch(ctx context.Context, et *entity.Metadata, tx *pkgRepoTr.Transactionable) error {
 
-	allBlockID := [][]byte{}
-
-	for _, v := range et.GetAllBlockIds() {
-		bId, err := v.MarshalBinary()
-		if err != nil {
-			return err
-		}
-		allBlockID = append(allBlockID, bId)
+	var blockIDs []string
+	for _, id := range et.GetAllBlockIds() {
+		blockIDs = append(blockIDs, id.String())
 	}
 
 	// if use tx
@@ -123,7 +143,7 @@ func (m *MetadataRepo) Touch(ctx context.Context, et *entity.Metadata, tx *pkgRe
 		}
 		defer stmt.Close()
 
-		_, err = stmt.Exec(et.GetParentPath(), et.GetPath(), et.GetType(), et.GetINodeID().String(), et.GetHash(), allBlockID)
+		_, err = stmt.Exec(et.GetParentPath(), et.GetPath(), et.GetType(), et.GetINodeID(), et.GetHash(), pq.Array(blockIDs))
 		if err != nil {
 			return err
 		}
@@ -131,7 +151,7 @@ func (m *MetadataRepo) Touch(ctx context.Context, et *entity.Metadata, tx *pkgRe
 		return nil
 	}
 
-	_, err := m.db.Exec(queryMetadataInsert, et.GetParentPath(), et.GetPath(), et.GetType(), et.GetINodeID().String(), et.GetHash(), allBlockID)
+	_, err := m.db.Exec(queryMetadataInsert, et.GetParentPath(), et.GetPath(), et.GetType(), et.GetINodeID().String(), et.GetHash(), pq.Array(blockIDs))
 	if err != nil {
 		return err
 	}

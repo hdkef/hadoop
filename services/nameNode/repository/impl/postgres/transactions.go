@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,41 +16,30 @@ import (
 )
 
 const (
-	queryInsertTransactions = "INSERT INTO transactions (is_committed,created_at,lease_time_in_sec,protobuf_bytes) VALUES ($1,$2,$3,$4)"
-	queryGetransactionsByID = "SELECT is_committed,created_at,lease_time_in_sec,protobuf_bytes FROM transactions WHERE id = $1"
-	queryUpdateIsCommited   = "UPDATE transactions SET is_committed = $1 WHERE id = $2"
-	queryGetOneExpired      = `SELECT * FROM transactions WHERE is_committed = FALSE AND EXTRACT(EPOCH FROM NOW() - created_at) > lease_time_in_sec LIMIT 1;`
+	queryInsertTransactions       = "INSERT INTO transactions (is_committed,created_at,lease_time_in_sec,protobuf_bytes) VALUES ($1,$2,$3,$4) RETURNING id"
+	queryGetransactionsByID       = "SELECT id,is_committed,created_at,lease_time_in_sec,protobuf_bytes FROM transactions WHERE id = $1"
+	queryUpdateIsCommited         = "UPDATE transactions SET is_committed = true WHERE id = $1"
+	queryGetOneExpired            = `SELECT id,is_committed,created_at,lease_time_in_sec,protobuf_bytes FROM transactions WHERE is_committed = FALSE AND EXTRACT(EPOCH FROM NOW() - created_at) > lease_time_in_sec AND is_rolledback = false ORDER BY rollback_tries ASC LIMIT 1`
+	queryUpdateRollback           = "UPDATE transactions SET is_committed = false, is_rolledback = true WHERE id = $1"
+	queryIncrementRollbackRetries = "UPDATE transactions SET rollback_tries = rollback_tries + 1 WHERE id = $1"
 )
 
 type TransactionsRepo struct {
 	db *sql.DB
 }
 
-// Add implements repository.TransactionsRepo.
-func (t *TransactionsRepo) Add(ctx context.Context, et *entity.Transactions, tx *pkgRepoTr.Transactionable) error {
-
-	createdAt := time.Now()
-
-	protoBuf, err := transactionsToProto(et)
-	if err != nil {
-		return err
-	}
-
-	protoBufBytes, err := proto.Marshal(protoBuf)
-	if err != nil {
-		return err
-	}
-
+// IncrementRollbackRetries implements repository.TransactionsRepo.
+func (t *TransactionsRepo) IncrementRollbackRetries(ctx context.Context, transactionID uuid.UUID, tx *pkgRepoTr.Transactionable) error {
 	// if use tx
 	if tx != nil {
 
-		stmt, err := tx.Tx.PrepareContext(ctx, queryInsertTransactions)
+		stmt, err := tx.Tx.PrepareContext(ctx, queryIncrementRollbackRetries)
 		if err != nil {
 			return err
 		}
 		defer stmt.Close()
 
-		_, err = stmt.Exec(false, createdAt, et.GetLeaseTimeInSecond(), protoBufBytes)
+		_, err = stmt.Exec(transactionID.String())
 		if err != nil {
 			return err
 		}
@@ -58,12 +48,54 @@ func (t *TransactionsRepo) Add(ctx context.Context, et *entity.Transactions, tx 
 	}
 
 	// else
-	_, err = t.db.Exec(queryInsertTransactions, false, createdAt, et.GetLeaseTimeInSecond(), protoBufBytes)
+	_, err := t.db.Exec(queryIncrementRollbackRetries, transactionID)
 	if err != nil {
 		return err
 	}
-
 	return nil
+}
+
+// Add implements repository.TransactionsRepo.
+func (t *TransactionsRepo) Add(ctx context.Context, et *entity.Transactions, tx *pkgRepoTr.Transactionable) (uuid.UUID, error) {
+
+	createdAt := time.Now()
+
+	protoBuf, err := transactionsToProto(et)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
+	protoBufBytes, err := proto.Marshal(protoBuf)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
+	var trId uuid.UUID
+
+	// if use tx
+	if tx != nil {
+
+		stmt, err := tx.Tx.PrepareContext(ctx, queryInsertTransactions)
+		if err != nil {
+			return uuid.UUID{}, err
+		}
+		defer stmt.Close()
+
+		err = stmt.QueryRowContext(ctx, false, createdAt, et.GetLeaseTimeInSecond(), protoBufBytes).Scan(&trId)
+		if err != nil {
+			return uuid.UUID{}, err
+		}
+
+		return trId, nil
+	}
+
+	// else
+	err = t.db.QueryRowContext(ctx, queryInsertTransactions, false, createdAt, et.GetLeaseTimeInSecond(), protoBufBytes).Scan(&trId)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
+	return trId, nil
 }
 
 // Commit implements repository.TransactionsRepo.
@@ -77,18 +109,28 @@ func (t *TransactionsRepo) Commit(ctx context.Context, transactionID uuid.UUID, 
 		}
 		defer stmt.Close()
 
-		_, err = stmt.Exec(true, transactionID.String())
+		res, err := stmt.Exec(transactionID)
 		if err != nil {
 			return err
+		}
+		aff, _ := res.RowsAffected()
+
+		if aff < 1 {
+			return fmt.Errorf("commit failed for transactions %s", transactionID.String())
 		}
 
 		return nil
 	}
 
 	// else
-	_, err := t.db.Exec(queryUpdateIsCommited, true, transactionID.String())
+	res, err := t.db.Exec(queryUpdateIsCommited, transactionID)
 	if err != nil {
 		return err
+	}
+	aff, _ := res.RowsAffected()
+
+	if aff < 1 {
+		return fmt.Errorf("commit failed for transactions %s", transactionID.String())
 	}
 	return nil
 }
@@ -100,9 +142,9 @@ func (t *TransactionsRepo) Get(ctx context.Context, transactionID uuid.UUID, tx 
 	var row *sql.Row
 
 	if tx != nil {
-		row = tx.Tx.QueryRowContext(ctx, queryGetransactionsByID, transactionID.String())
+		row = tx.Tx.QueryRowContext(ctx, queryGetransactionsByID, transactionID)
 	} else {
-		row = t.db.QueryRowContext(ctx, queryGetransactionsByID, transactionID.String())
+		row = t.db.QueryRowContext(ctx, queryGetransactionsByID, transactionID)
 	}
 
 	if row != nil {
@@ -112,8 +154,9 @@ func (t *TransactionsRepo) Get(ctx context.Context, transactionID uuid.UUID, tx 
 		leaseTimeInSecond := uint32(0)
 		protoBufBytes := []byte{}
 		protoBuf := &messageProto.Transactions{}
+		id := uuid.UUID{}
 
-		err := row.Scan(&isCommited, &createdAt, &leaseTimeInSecond, &protoBufBytes)
+		err := row.Scan(&id, &isCommited, &createdAt, &leaseTimeInSecond, &protoBufBytes)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil, nil
@@ -124,6 +167,7 @@ func (t *TransactionsRepo) Get(ctx context.Context, transactionID uuid.UUID, tx 
 		et.SetIsCommitted(isCommited)
 		et.SetCreatedAt(createdAt)
 		et.SetLeaseTimeInSecond(leaseTimeInSecond)
+		et.SetID(id)
 
 		err = proto.Unmarshal(protoBufBytes, protoBuf)
 		if err != nil {
@@ -161,8 +205,9 @@ func (t *TransactionsRepo) GetOneExpired(ctx context.Context, tx *pkgRepoTr.Tran
 		leaseTimeInSecond := uint32(0)
 		protoBufBytes := []byte{}
 		protoBuf := &messageProto.Transactions{}
+		id := uuid.UUID{}
 
-		err := row.Scan(&isCommited, &createdAt, &leaseTimeInSecond, &protoBufBytes)
+		err := row.Scan(&id, &isCommited, &createdAt, &leaseTimeInSecond, &protoBufBytes)
 		if err != nil {
 
 			if err == sql.ErrNoRows {
@@ -175,6 +220,7 @@ func (t *TransactionsRepo) GetOneExpired(ctx context.Context, tx *pkgRepoTr.Tran
 		et.SetIsCommitted(isCommited)
 		et.SetCreatedAt(createdAt)
 		et.SetLeaseTimeInSecond(leaseTimeInSecond)
+		et.SetID(id)
 
 		err = proto.Unmarshal(protoBufBytes, protoBuf)
 		if err != nil {
@@ -197,25 +243,37 @@ func (t *TransactionsRepo) RolledBack(ctx context.Context, transactionID uuid.UU
 	// if use tx
 	if tx != nil {
 
-		stmt, err := tx.Tx.PrepareContext(ctx, queryUpdateIsCommited)
+		stmt, err := tx.Tx.PrepareContext(ctx, queryUpdateRollback)
 		if err != nil {
 			return err
 		}
 		defer stmt.Close()
 
-		_, err = stmt.Exec(false, transactionID.String())
+		res, err := stmt.Exec(transactionID)
 		if err != nil {
 			return err
+		}
+
+		aff, _ := res.RowsAffected()
+
+		if aff < 1 {
+			return fmt.Errorf("rollback failed for transactions %s", transactionID.String())
 		}
 
 		return nil
 	}
 
 	// else
-	_, err := t.db.Exec(queryUpdateIsCommited, false, transactionID.String())
+	res, err := t.db.Exec(queryUpdateRollback, transactionID)
 	if err != nil {
 		return err
 	}
+	aff, _ := res.RowsAffected()
+
+	if aff < 1 {
+		return fmt.Errorf("rollback failed for transactions %s", transactionID.String())
+	}
+
 	return nil
 }
 

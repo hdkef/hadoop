@@ -100,5 +100,6 @@ func NewWriteUsecase(dto *WriteRequestUsecaseDto) usecase.WriteRequestUsecase {
 		dataNodeService:     *dto.DataNodeService,
 		rollbackService:     *dto.RollbackService,
 		transactionInjector: dto.TransactionInjector,
+		dataNodeCache:       dto.DataNodeCache,
 	}
 }

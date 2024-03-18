@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
+	"github.com/hdkef/hadoop/pkg/logger"
 	pkgSvc "github.com/hdkef/hadoop/pkg/services"
 	nameNodeProto "github.com/hdkef/hadoop/proto/nameNode"
 	"github.com/hdkef/hadoop/services/client/service"
@@ -29,9 +30,13 @@ type NameNodeService struct {
 // CommitTransaction implements service.NameNodeService.
 func (n *NameNodeService) CommitTransaction(ctx context.Context, transactionsID uuid.UUID, isSuccess bool) error {
 	// take one nameNode service randomly
-	nameNodeSvc := n.nameNodeCache[rand.Intn(len(n.nameNodeCache))+1]
+	n.mtx.Lock()
+	nameNodeSvc := n.nameNodeCache[rand.Intn(len(n.nameNodeCache))]
+	n.mtx.Unlock()
+
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", nameNodeSvc.GetAddress(), nameNodeSvc.GetPort()), grpc.WithInsecure())
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 	defer conn.Close()
@@ -42,6 +47,7 @@ func (n *NameNodeService) CommitTransaction(ctx context.Context, transactionsID 
 
 	trID, err := transactionsID.MarshalBinary()
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 
@@ -55,6 +61,7 @@ func (n *NameNodeService) CommitTransaction(ctx context.Context, transactionsID 
 		Status:        status,
 	})
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 	return nil
@@ -64,25 +71,27 @@ func (n *NameNodeService) CommitTransaction(ctx context.Context, transactionsID 
 func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.CreateReqDto) (*pkgEt.QueryNodeTarget, error) {
 
 	// if nameNode empty, query service registry
+	n.mtx.Lock()
 	if len(n.nameNodeCache) == 0 {
 		svd, err := n.serviceRegistry.GetAll(ctx, "nameNode", "")
 		if err != nil {
+			logger.LogError(err)
 			return nil, err
 		}
 
-		n.mtx.Lock()
 		for i, v := range svd {
 			n.nameNodeCache[i] = v
 		}
-		n.mtx.Unlock()
 	}
 
 	// take one nameNode service randomly
-	nameNodeSvc := n.nameNodeCache[rand.Intn(len(n.nameNodeCache))+1]
+	nameNodeSvc := n.nameNodeCache[rand.Intn(len(n.nameNodeCache))]
+	n.mtx.Unlock()
 
 	// query nameNode service
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", nameNodeSvc.GetAddress(), nameNodeSvc.GetPort()), grpc.WithInsecure())
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 	defer conn.Close()
@@ -98,6 +107,7 @@ func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.Create
 		Hash:              dto.GetHash(),
 	})
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 
@@ -109,6 +119,7 @@ func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.Create
 	for _, v := range resp.GetAllBlockId() {
 		b, err := uuid.FromBytes(v)
 		if err != nil {
+			logger.LogError(err)
 			return nil, err
 		}
 		allBlockID = append(allBlockID, b)
@@ -119,6 +130,7 @@ func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.Create
 
 		bID, err := uuid.FromBytes(v.GetBlockID())
 		if err != nil {
+			logger.LogError(err)
 			return nil, err
 		}
 
@@ -126,15 +138,18 @@ func (n *NameNodeService) QueryNodeTarget(ctx context.Context, dto *pkgEt.Create
 		newNd.SetNodeGrpcPort(v.GetNodeGrpcPort())
 		newNd.SetNodeID(v.GetNodeID())
 		newNd.SetBlockID(bID)
+		nodeTarget = append(nodeTarget, newNd)
 	}
 
 	trId, err := uuid.FromBytes(resp.GetTransactionID())
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 
 	iNodeID, err := uuid.FromBytes(resp.GetINodeID())
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 

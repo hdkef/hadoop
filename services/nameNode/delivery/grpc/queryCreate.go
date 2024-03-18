@@ -4,6 +4,7 @@ import (
 	"context"
 
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
+	"github.com/hdkef/hadoop/pkg/logger"
 	nameNodeProto "github.com/hdkef/hadoop/proto/nameNode"
 )
 
@@ -13,16 +14,19 @@ func (h *handler) QueryNodeTargetCreate(ctx context.Context, req *nameNodeProto.
 	dto := &pkgEt.CreateReqDto{}
 	err := dto.FromProto(req)
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 
 	resp, err := h.writeUC.CreateRequest(ctx, dto)
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 
 	mappedResponse, err := resp.ToProto()
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 

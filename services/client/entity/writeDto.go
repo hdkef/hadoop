@@ -3,6 +3,9 @@ package entity
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"io"
+	"net/http"
+	"strconv"
 
 	clientProto "github.com/hdkef/hadoop/proto/client"
 )
@@ -89,4 +92,48 @@ func (c *CreateDto) GetHashFile() string {
 
 func (c *CreateDto) GetFileSize() uint64 {
 	return uint64(len(c.file))
+}
+
+func (w *CreateDto) NewFromHttp(r *http.Request) error {
+
+	err := r.ParseMultipartForm(10 << 20) // 10 MB maximum
+	if err != nil {
+		return err
+	}
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	w.file = data
+	w.path = r.FormValue("path")
+	blockSplitTarget := r.FormValue("blockSplitTarget")
+	blockSplitTargetVal := 0
+
+	if blockSplitTarget != "" {
+		blockSplitTargetVal, err = strconv.Atoi(blockSplitTarget)
+		if err != nil {
+			return err
+		}
+	}
+
+	replicationTarget := r.FormValue("replicationTarget")
+	replicationTargetVal := 0
+	if replicationTarget != "" {
+		replicationTargetVal, err = strconv.Atoi(replicationTarget)
+		if err != nil {
+			return err
+		}
+	}
+
+	w.replicationTarget = uint32(replicationTargetVal)
+	w.blockSplitTarget = uint32(blockSplitTargetVal)
+
+	return nil
 }

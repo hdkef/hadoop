@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/hdkef/hadoop/pkg/logger"
 	nameNodeProto "github.com/hdkef/hadoop/proto/nameNode"
 )
 
@@ -14,6 +15,7 @@ func (h *handler) CommitTransactions(ctx context.Context, req *nameNodeProto.Com
 	statusSuccess := false
 	trID, err := uuid.FromBytes(req.GetTransactionID())
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 
@@ -25,6 +27,7 @@ func (h *handler) CommitTransactions(ctx context.Context, req *nameNodeProto.Com
 		// if success, execute commit
 		err = h.writeUC.CommitTransactions(ctx, trID)
 		if err != nil {
+			logger.LogError(err)
 			return nil, err
 		}
 		return &nameNodeProto.CommitTransactionsRes{}, nil
@@ -33,6 +36,7 @@ func (h *handler) CommitTransactions(ctx context.Context, req *nameNodeProto.Com
 
 		err = h.writeUC.RollbackTransactions(ctx, trID)
 		if err != nil {
+			logger.LogError(err)
 			return nil, err
 		}
 		return &nameNodeProto.CommitTransactionsRes{}, nil

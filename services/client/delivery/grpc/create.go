@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"github.com/hdkef/hadoop/pkg/logger"
 	clientProto "github.com/hdkef/hadoop/proto/client"
 	"github.com/hdkef/hadoop/services/client/entity"
 )
@@ -11,6 +12,7 @@ func (h *handler) Create(req *clientProto.CreateReq, stream clientProto.Client_C
 	dto := &entity.CreateDto{}
 	err := dto.NewFromProto(req)
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 
@@ -21,6 +23,7 @@ func (h *handler) Create(req *clientProto.CreateReq, stream clientProto.Client_C
 	for val := range progressCh {
 
 		if val.IsError() {
+			logger.LogError(val.GetError())
 			return val.GetError()
 		}
 

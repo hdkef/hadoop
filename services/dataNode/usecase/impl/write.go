@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/hdkef/hadoop/pkg/logger"
 	"github.com/hdkef/hadoop/services/dataNode/entity"
 )
 
@@ -17,6 +18,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto) er
 	// write file to storage
 	err := iNodeBlockId.Write(w.cfg.StorageRoot, dto.GetBlocksData())
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 

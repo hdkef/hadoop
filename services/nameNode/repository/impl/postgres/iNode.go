@@ -15,6 +15,7 @@ import (
 
 const (
 	queryGetByINodeID = "SELECT FROM i_nodes_blocks (blocks_id,node_id,blocks_index,size) WHERE i_node_id = $1"
+	queryDeleteINode  = "DELETE FROM i_nodes_blocks WHERE i_node_id = $1"
 )
 
 type INodeRepo struct {
@@ -56,7 +57,30 @@ func (i *INodeRepo) Create(ctx context.Context, inode *entity.INode, tx *pkgRepo
 
 // Delete implements repository.INodeRepo.
 func (i *INodeRepo) Delete(ctx context.Context, inodeID uuid.UUID, tx *pkgRepoTr.Transactionable) error {
-	panic("unimplemented")
+	// if use tx
+	if tx != nil {
+
+		stmt, err := tx.Tx.PrepareContext(ctx, queryDeleteINode)
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(inodeID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// else
+	_, err := i.db.Exec(queryDeleteINode, inodeID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Get implements repository.INodeRepo.
@@ -150,13 +174,13 @@ func (i *INodeRepo) queryInsert(inode *entity.INode) (string, []interface{}, err
 	for i := range inode.GetAllBlockIds() {
 		blocks := inode.GetBlocks()[i]
 		for _, nodeID := range blocks.NodeIDs {
-			values = append(values, inode.GetID().String(), blocks.ID.String(), i, nodeID, blocks.Size)
+			values = append(values, inode.GetID(), blocks.ID, i, nodeID, blocks.Size)
 			placeholders = append(placeholders, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", (idx*5)+1, (idx*5)+2, (idx*5)+3, (idx*5)+4, (idx*5)+5))
 			idx++
 		}
 	}
 
-	query += fmt.Sprintf("(%s)", strings.Join(placeholders, ", "))
+	query += strings.Join(placeholders, ", ")
 
 	return query, values, nil
 }

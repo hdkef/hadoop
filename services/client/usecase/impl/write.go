@@ -6,6 +6,7 @@ import (
 
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
 	"github.com/hdkef/hadoop/pkg/helper"
+	"github.com/hdkef/hadoop/pkg/logger"
 	"github.com/hdkef/hadoop/services/client/entity"
 	"golang.org/x/sync/errgroup"
 )
@@ -28,6 +29,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 
 	queryResult, err := w.nameNodeService.QueryNodeTarget(ctx, dtoCreateReq)
 	if err != nil {
+		logger.LogError(err)
 		p := entity.CreateStreamRes{}
 		p.SetError(err)
 		chProgress <- p
@@ -52,6 +54,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 			// compress each block
 			compressed, err := helper.Compress(blocksData[i])
 			if err != nil {
+				logger.LogError(err)
 				return err
 			}
 
@@ -64,6 +67,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 			replicaDto.SetBlockID(blockID)
 			replicaDto.SetBlocksData(compressed)
 			replicaDto.SetCurrentReplicated(0)
+			replicaDto.SetReplicationTarget(dto.GetReplicationTarget())
 
 			nextNode := &pkgEt.NodeInfo{}
 			nextNode.SetNodeID(nodeTarget[0].GetNodeID())
@@ -99,6 +103,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 			chProgress <- p
 
 			if err != nil {
+				logger.LogError(err)
 				return err
 			}
 
@@ -110,6 +115,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 	err = errGroup.Wait()
 	defer close(chProgress)
 	if err != nil {
+		logger.LogError(err)
 		p := entity.CreateStreamRes{}
 		p.SetError(err)
 		chProgress <- p
@@ -120,6 +126,7 @@ func (w *WriteUsecaseImpl) Create(ctx context.Context, dto *entity.CreateDto, ch
 	// commit result
 	err = w.nameNodeService.CommitTransaction(ctx, queryResult.GetTransactionID(), true)
 	if err != nil {
+		logger.LogError(err)
 		p := entity.CreateStreamRes{}
 		p.SetError(err)
 		chProgress <- p

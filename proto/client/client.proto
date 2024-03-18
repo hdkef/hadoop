@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 option go_package = "./client";
+package client;
 
 service Client {
     rpc Create(CreateReq) returns (stream CreateRes) {}

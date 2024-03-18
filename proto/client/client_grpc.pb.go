@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Client_Create_FullMethodName = "/Client/Create"
+	Client_Create_FullMethodName = "/client.Client/Create"
 )
 
 // ClientClient is the client API for Client service.
@@ -122,7 +122,7 @@ func (x *clientCreateServer) Send(m *CreateRes) error {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Client_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Client",
+	ServiceName: "client.Client",
 	HandlerType: (*ClientServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{

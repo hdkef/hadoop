@@ -1,13 +1,26 @@
 version: '3'
 services:
+  client:
+    build:
+      context: .
+      dockerfile: ./deploy/client/http/Dockerfile
+    container_name: client
+    restart: always
+    ports:
+      - 8000:443
+    working_dir: /app
+    environment:
+      CLIENT_PORT: 443
+    networks:
+      - distributed
+    depends_on:
+      - consul
   namenode:
     build:
       context: .
       dockerfile: ./deploy/nameNode/Dockerfile
     container_name: namenode
     restart: always
-    ports:
-      - 8000:443
     expose:
       - "443"
     working_dir: /app
@@ -24,7 +37,7 @@ services:
       PG_PORT: 5432
       PG_POOL_SIZE: 5
       PG_POOL_MAX_LIFE: 60s
-      DG_ADDR: host.docker.internal
+      DG_ADDR: "host.docker.internal:6380"
       DG_PASSWORD: redis
       DG_DB: 0
       NODE_ID: "namenode-1"
@@ -40,8 +53,6 @@ services:
       dockerfile: ./deploy/dataNode/Dockerfile
     container_name: datanode-1
     restart: always
-    ports:
-      - 8001:443
     expose:
       - "443"
     working_dir: /app
@@ -64,8 +75,6 @@ services:
       dockerfile: ./deploy/dataNode/Dockerfile
     container_name: datanode-2
     restart: always
-    ports:
-      - 8002:443
     expose:
       - "443"
     working_dir: /app

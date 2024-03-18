@@ -7,12 +7,13 @@ import (
 
 	"github.com/google/uuid"
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
+	"github.com/hdkef/hadoop/pkg/logger"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 	"golang.org/x/sync/errgroup"
 )
 
 // WriteRequest implements usecase.WriteRequestUsecase.
-func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.CreateReqDto) (res *pkgEt.QueryNodeTarget, err error) {
+func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.CreateReqDto) (*pkgEt.QueryNodeTarget, error) {
 
 	replTarget := w.cfg.ReplicationTarget
 	blockSplitTarget := w.cfg.BlockSplitTarget
@@ -47,8 +48,9 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 		return nil
 	})
 
-	err = errGroup.Wait()
+	err := errGroup.Wait()
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 
@@ -61,26 +63,28 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 
 	// check available dataNode (consul)
 	var svd []*pkgEt.ServiceDiscovery
+	w.mtx.Lock()
 	if len(w.dataNodeCache) == 0 {
 		svd, err = w.serviceRegistry.GetAll(ctx, "dataNode", "")
 		if err != nil {
+			logger.LogError(err)
 			return nil, err
 		}
-		w.mtx.Lock()
-		defer w.mtx.Unlock()
+
 		for _, v := range svd {
 			w.dataNodeCache[v.GetID()] = v
 		}
 	}
+	w.mtx.Unlock()
 
-	if len(svd) < int(replTarget) {
+	if len(w.dataNodeCache) < int(replTarget) {
 		return nil, fmt.Errorf("available %d nodes, replication target %d", len(svd), replTarget)
 	}
 
 	// check available space dataNode (query)
 	nodeStorages := make([]*entity.NodeStorage, 0)
 
-	for _, v := range svd {
+	for _, v := range w.dataNodeCache {
 
 		nd := &entity.NodeStorage{}
 		nd.SetNodeID(v.GetID())
@@ -102,6 +106,7 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 	var blockTargets []*entity.BlockTarget
 	blockTargets, nodeStorages, err = w.nodeAllocator.Allocate(nodeStorages, replTarget, blockSplitTarget, dto.GetFileSize())
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 
@@ -137,16 +142,19 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 	metadata.SetAllBlockIds(allBlockIDs)
 	transactions.SetMetadata(metadata)
 
-	err = w.transactionsRepo.Add(ctx, transactions, nil)
+	trId, err := w.transactionsRepo.Add(ctx, transactions, nil)
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
+	transactions.SetID(trId)
 
 	// update leaseStorage in nodeStorage repo
 	for _, v := range nodeStorages {
 		if v.GetLeasedUsedStorageChanged() {
 			err = w.nodeStorageRepo.SetNodeStorage(ctx, v)
 			if err != nil {
+				logger.LogError(err)
 				return nil, err
 			}
 		}
@@ -154,11 +162,13 @@ func (w *WriteRequestUsecaseImpl) CreateRequest(ctx context.Context, dto *pkgEt.
 
 	// respond
 	// domain query
+	res := &pkgEt.QueryNodeTarget{}
+
 	res.SetAllBlockID(allBlockIDs)
 	res.SetINodeID(metadata.GetINodeID())
 	res.SetTransactionID(transactions.GetID())
 	res.SetNodeTargets(replNodeTarget)
 	res.SetReplicationFactor(replTarget)
 
-	return
+	return res, nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hdkef/hadoop/pkg/logger"
 	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
 	"github.com/hdkef/hadoop/services/client/entity"
 	"github.com/hdkef/hadoop/services/client/service"
@@ -17,6 +18,7 @@ type DataNodeService struct {
 func (d *DataNodeService) ReplicateNextNode(ctx context.Context, dto *entity.ReplicateNextNodeDto) error {
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", dto.GetNextNode().GetAddress(), dto.GetNextNode().GetGRPCPort()), grpc.WithInsecure())
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 	defer conn.Close()
@@ -36,11 +38,13 @@ func (d *DataNodeService) ReplicateNextNode(ctx context.Context, dto *entity.Rep
 
 	iNdID, err := dto.GetINodeID().MarshalBinary()
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 
 	bID, err := dto.GetBlockID().MarshalBinary()
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 
@@ -53,6 +57,7 @@ func (d *DataNodeService) ReplicateNextNode(ctx context.Context, dto *entity.Rep
 		ReplicationNodeTarget: nodeTarget,
 	})
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 

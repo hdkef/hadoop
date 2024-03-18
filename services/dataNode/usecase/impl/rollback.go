@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 
+	"github.com/hdkef/hadoop/pkg/logger"
 	"github.com/hdkef/hadoop/services/dataNode/entity"
 )
 
@@ -14,5 +15,10 @@ func (w *WriteUsecaseImpl) RollBack(ctx context.Context, dto *entity.RollbackDto
 	iNodeBlockID.SetINodeID(dto.GetINodeID())
 	iNodeBlockID.SetBlockID(dto.GetBlockID())
 
-	return iNodeBlockID.Remove(w.cfg.StorageRoot)
+	err := iNodeBlockID.Remove(w.cfg.StorageRoot)
+	if err != nil {
+		logger.LogError(err)
+		return err
+	}
+	return nil
 }

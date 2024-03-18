@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	pkgEt "github.com/hdkef/hadoop/pkg/entity"
+	"github.com/hdkef/hadoop/pkg/logger"
 	dataNodeProto "github.com/hdkef/hadoop/proto/dataNode"
 	"google.golang.org/grpc"
 
@@ -22,6 +23,7 @@ func (d *DataNodeService) Rollback(ctx context.Context, dto *entity.RollbackDto)
 
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", dto.GetNodeAddress(), dto.GetNodePort()), grpc.WithInsecure())
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 	defer conn.Close()
@@ -30,11 +32,13 @@ func (d *DataNodeService) Rollback(ctx context.Context, dto *entity.RollbackDto)
 
 	dtoProto, err := dto.ToProto()
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 
 	_, err = client.Rollback(ctx, dtoProto)
 	if err != nil {
+		logger.LogError(err)
 		return err
 	}
 
@@ -45,6 +49,7 @@ func (d *DataNodeService) Rollback(ctx context.Context, dto *entity.RollbackDto)
 func (d *DataNodeService) QueryStorage(ctx context.Context, svd *pkgEt.ServiceDiscovery) (*entity.NodeStorage, error) {
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", svd.GetAddress(), svd.GetPort()), grpc.WithInsecure())
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 	defer conn.Close()
@@ -53,6 +58,7 @@ func (d *DataNodeService) QueryStorage(ctx context.Context, svd *pkgEt.ServiceDi
 
 	resp, err := client.QueryStorage(ctx, &dataNodeProto.QueryStorageReq{})
 	if err != nil {
+		logger.LogError(err)
 		return nil, err
 	}
 

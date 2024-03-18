@@ -1,5 +1,6 @@
 syntax = "proto3";
 option go_package = "./nameNode";
+package namenode;
 
 service NameNode {
   rpc CommitTransactions (CommitTransactionsReq) returns (CommitTransactionsRes) {}

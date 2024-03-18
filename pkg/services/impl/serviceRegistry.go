@@ -46,8 +46,8 @@ func (s *ServiceRegistry) GetAll(ctx context.Context, servicesName string, tag s
 	for _, v := range addrs {
 
 		newEntry := &pkgEt.ServiceDiscovery{}
-		newEntry.SetAddress(v.Node.Address)
-		newEntry.SetID(v.Node.ID)
+		newEntry.SetAddress(v.Service.Address)
+		newEntry.SetID(v.Service.ID)
 		newEntry.SetPort(uint32(v.Service.Port))
 		newEntry.SetServices(v.Service.Service)
 

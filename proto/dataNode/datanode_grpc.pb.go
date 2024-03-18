@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DataNode_Create_FullMethodName       = "/DataNode/Create"
-	DataNode_QueryStorage_FullMethodName = "/DataNode/QueryStorage"
-	DataNode_Rollback_FullMethodName     = "/DataNode/Rollback"
+	DataNode_Create_FullMethodName       = "/datanode.DataNode/Create"
+	DataNode_QueryStorage_FullMethodName = "/datanode.DataNode/QueryStorage"
+	DataNode_Rollback_FullMethodName     = "/datanode.DataNode/Rollback"
+	DataNode_Read_FullMethodName         = "/datanode.DataNode/Read"
 )
 
 // DataNodeClient is the client API for DataNode service.
@@ -31,6 +32,7 @@ type DataNodeClient interface {
 	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRes, error)
 	QueryStorage(ctx context.Context, in *QueryStorageReq, opts ...grpc.CallOption) (*QueryStorageRes, error)
 	Rollback(ctx context.Context, in *RollbackReq, opts ...grpc.CallOption) (*RollbackRes, error)
+	Read(ctx context.Context, in *ReadReq, opts ...grpc.CallOption) (*ReadRes, error)
 }
 
 type dataNodeClient struct {
@@ -68,6 +70,15 @@ func (c *dataNodeClient) Rollback(ctx context.Context, in *RollbackReq, opts ...
 	return out, nil
 }
 
+func (c *dataNodeClient) Read(ctx context.Context, in *ReadReq, opts ...grpc.CallOption) (*ReadRes, error) {
+	out := new(ReadRes)
+	err := c.cc.Invoke(ctx, DataNode_Read_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DataNodeServer is the server API for DataNode service.
 // All implementations must embed UnimplementedDataNodeServer
 // for forward compatibility
@@ -75,6 +86,7 @@ type DataNodeServer interface {
 	Create(context.Context, *CreateReq) (*CreateRes, error)
 	QueryStorage(context.Context, *QueryStorageReq) (*QueryStorageRes, error)
 	Rollback(context.Context, *RollbackReq) (*RollbackRes, error)
+	Read(context.Context, *ReadReq) (*ReadRes, error)
 	mustEmbedUnimplementedDataNodeServer()
 }
 
@@ -90,6 +102,9 @@ func (UnimplementedDataNodeServer) QueryStorage(context.Context, *QueryStorageRe
 }
 func (UnimplementedDataNodeServer) Rollback(context.Context, *RollbackReq) (*RollbackRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Rollback not implemented")
+}
+func (UnimplementedDataNodeServer) Read(context.Context, *ReadReq) (*ReadRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
 }
 func (UnimplementedDataNodeServer) mustEmbedUnimplementedDataNodeServer() {}
 
@@ -158,11 +173,29 @@ func _DataNode_Rollback_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DataNode_Read_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataNodeServer).Read(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataNode_Read_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataNodeServer).Read(ctx, req.(*ReadReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DataNode_ServiceDesc is the grpc.ServiceDesc for DataNode service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var DataNode_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "DataNode",
+	ServiceName: "datanode.DataNode",
 	HandlerType: (*DataNodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -176,6 +209,10 @@ var DataNode_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Rollback",
 			Handler:    _DataNode_Rollback_Handler,
+		},
+		{
+			MethodName: "Read",
+			Handler:    _DataNode_Read_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

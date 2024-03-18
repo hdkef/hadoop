@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	NameNode_CommitTransactions_FullMethodName    = "/NameNode/CommitTransactions"
-	NameNode_QueryNodeTargetCreate_FullMethodName = "/NameNode/QueryNodeTargetCreate"
+	NameNode_CommitTransactions_FullMethodName    = "/namenode.NameNode/CommitTransactions"
+	NameNode_QueryNodeTargetCreate_FullMethodName = "/namenode.NameNode/QueryNodeTargetCreate"
 )
 
 // NameNodeClient is the client API for NameNode service.
@@ -129,7 +129,7 @@ func _NameNode_QueryNodeTargetCreate_Handler(srv interface{}, ctx context.Contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var NameNode_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "NameNode",
+	ServiceName: "namenode.NameNode",
 	HandlerType: (*NameNodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

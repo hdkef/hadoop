@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/hdkef/hadoop/pkg/logger"
 	"github.com/hdkef/hadoop/services/nameNode/entity"
 )
 
@@ -20,18 +21,7 @@ func (w *WriteRequestUsecaseImpl) CommitTransactions(ctx context.Context, txID u
 	// begin db transactions
 	transactionable, err := w.transactionInjector.Begin(ctx)
 	if err != nil {
-		return err
-	}
-	// create iNodeblockids
-
-	iNode := &entity.INode{}
-	iNode.SetID(tx.GetID())
-	iNode.SetBlocks(tx.GetBlockTaret())
-	iNode.SetAllBlockIds(tx.GetMetadata().GetAllBlockIds())
-
-	err = w.iNodeRepo.Create(ctx, iNode, transactionable)
-	if err != nil {
-		transactionable.Tx.Rollback()
+		logger.LogError(err)
 		return err
 	}
 
@@ -39,6 +29,21 @@ func (w *WriteRequestUsecaseImpl) CommitTransactions(ctx context.Context, txID u
 
 	err = w.metadataRepo.Touch(ctx, tx.GetMetadata(), transactionable)
 	if err != nil {
+		logger.LogError(err)
+		transactionable.Tx.Rollback()
+		return err
+	}
+
+	// create iNodeblockids
+
+	iNode := &entity.INode{}
+	iNode.SetID(tx.GetMetadata().GetINodeID())
+	iNode.SetBlocks(tx.GetBlockTaret())
+	iNode.SetAllBlockIds(tx.GetMetadata().GetAllBlockIds())
+
+	err = w.iNodeRepo.Create(ctx, iNode, transactionable)
+	if err != nil {
+		logger.LogError(err)
 		transactionable.Tx.Rollback()
 		return err
 	}
@@ -46,12 +51,17 @@ func (w *WriteRequestUsecaseImpl) CommitTransactions(ctx context.Context, txID u
 	// update transaction checkpoint
 	err = w.transactionsRepo.Commit(ctx, tx.GetID(), transactionable)
 	if err != nil {
+		logger.LogError(err)
 		transactionable.Tx.Rollback()
 		return err
 	}
 
 	// commit db transactions
-	transactionable.Tx.Commit()
-
+	err = transactionable.Tx.Commit()
+	if err != nil {
+		logger.LogError(err)
+		transactionable.Tx.Rollback()
+		return err
+	}
 	return nil
 }

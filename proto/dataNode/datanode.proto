@@ -1,5 +1,6 @@
 syntax = "proto3";
 option go_package = "./dataNode";
+package datanode;
 
 service DataNode {
   rpc Create (CreateReq) returns (CreateRes) {}

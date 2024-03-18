@@ -42,19 +42,23 @@ func main() {
 	dataNodeCache := make(map[string]*pkgEt.ServiceDiscovery)
 	dataNodeCachemtx := &sync.Mutex{}
 
-	dataNodeSvc := svcImpl.NewDataNodeService(cfg)
-	nodeAllocatorSvc := svcImpl.NewNodeAllocator(cfg)
-	rollbackSvc := svcImpl.NewRollbackService(&svcImpl.RollbackServiceDto{
-		DataNodeCache:    dataNodeCache,
-		Mtx:              dataNodeCachemtx,
-		TransactionsRepo: &transactionRepo,
-		DataNodeService:  &dataNodeSvc,
-		MetadataRepo:     &metadataRepo,
-	})
+	transactionInjector := pkgTransactionable.NewTransactionInjector(db)
+
 	serviceRegistry := pkgSvc.NewServiceRegistry(cfg.ServiceRegistryConfig)
 	serviceRegistry.RegisterNode(cfg.NodeID, "nameNode", int(cfg.NameNodePort), cfg.NameNodeAddress)
 
-	transactionInjector := pkgTransactionable.NewTransactionInjector(db)
+	dataNodeSvc := svcImpl.NewDataNodeService(cfg)
+	nodeAllocatorSvc := svcImpl.NewNodeAllocator(cfg)
+	rollbackSvc := svcImpl.NewRollbackService(&svcImpl.RollbackServiceDto{
+		DataNodeCache:       dataNodeCache,
+		Mtx:                 dataNodeCachemtx,
+		TransactionsRepo:    &transactionRepo,
+		DataNodeService:     &dataNodeSvc,
+		MetadataRepo:        &metadataRepo,
+		TransactionInjector: transactionInjector,
+		ServiceRegistry:     &serviceRegistry,
+		INodeRepo:           &iNodeRepo,
+	})
 
 	// init usecase
 
@@ -84,7 +88,7 @@ func main() {
 	server := grpc.NewGrpcHandler(cfg, &writeUC)
 
 	// spawn cron on another thread
-	cron := time.NewTicker(5 * time.Second)
+	cron := time.NewTicker(60 * time.Second)
 	defer cron.Stop()
 	go func(ch <-chan time.Time) {
 		for t := range ch {

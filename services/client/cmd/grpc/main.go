@@ -61,6 +61,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
+	log.Printf("gRPC server listening on %s", lis.Addr())
 
 	// spin up grpc server
 	sv := grpc.NewGrpcHandler(cfg, writeUC)

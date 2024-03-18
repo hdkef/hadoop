@@ -49,5 +49,6 @@ func NewCronUsecase(dto *CronUsecaseDto) usecase.CronUsecase {
 		mtx:              dto.Mtx,
 		serviceRegistry:  *dto.ServiceRegistry,
 		transactionsRepo: *dto.TransactionsRepo,
+		rollbackService:  *dto.RollbackService,
 	}
 }
