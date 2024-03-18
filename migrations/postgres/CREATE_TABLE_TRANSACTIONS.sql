@@ -7,3 +7,7 @@ CREATE TABLE transactions (
     lease_time_in_sec INTEGER NOT NULL,
     protobuf_bytes BYTEA NOT NULL
 );
+
+ALTER TABLE transactions
+ADD COLUMN IF NOT EXISTS rollback_tries SMALLINT DEFAULT 0,
+ADD COLUMN IF NOT EXISTS is_rolledback BOOLEAN DEFAULT false;

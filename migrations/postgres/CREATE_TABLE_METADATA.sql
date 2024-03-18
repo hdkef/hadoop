@@ -13,3 +13,5 @@ CREATE TABLE metadata (
 CREATE INDEX idx_parent_path ON metadata(parent_path);
 CREATE INDEX idx_path ON metadata USING HASH (path);
 ALTER TABLE metadata ADD CONSTRAINT unique_i_node_id UNIQUE (i_node_id);
+
+INSERT INTO metadata(parent_path,path,m_type) VALUES ('/','/',1);
