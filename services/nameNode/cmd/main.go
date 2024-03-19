@@ -84,6 +84,12 @@ func main() {
 		RollbackService:  &rollbackSvc,
 	})
 
+	// first init to fill cache
+	err := cronUC.SetDataNodeCache(context.Background())
+	for err != nil {
+		err = cronUC.SetDataNodeCache(context.Background())
+	}
+
 	// init delivery
 	server := grpc.NewGrpcHandler(cfg, &writeUC)
 

@@ -32,8 +32,8 @@ func (l *LoadBalancer) GetNextPtr(newTotal int) (int, error) {
 	return l.CurrentPtr, nil
 }
 
-func NewLoadBalancer(mtx *sync.Mutex) pkgSvc.RoundRobinLoadBalancer {
+func NewLoadBalancer() pkgSvc.RoundRobinLoadBalancer {
 	return &LoadBalancer{
-		Mtx: mtx,
+		Mtx: &sync.Mutex{},
 	}
 }

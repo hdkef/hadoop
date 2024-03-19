@@ -196,6 +196,6 @@ func NewNameNodeService(dto *NameNodeServiceDto) service.NameNodeService {
 		nameNodeCache:   dto.NameNodeCache,
 		serviceRegistry: *dto.ServiceRegistry,
 		mtx:             dto.Mtx,
-		loadBalancer:    pkgSvcImpl.NewLoadBalancer(&sync.Mutex{}),
+		loadBalancer:    pkgSvcImpl.NewLoadBalancer(),
 	}
 }

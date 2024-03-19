@@ -3,6 +3,7 @@ package entity
 import (
 	"fmt"
 	"os"
+	"syscall"
 
 	"github.com/google/uuid"
 )
@@ -52,6 +53,11 @@ func (i *INodeBlockID) Remove(root string) error {
 
 	err := os.Remove(dirPath)
 	if err != nil {
+		e, ok := err.(*os.PathError)
+		// if file not found, considered is rolledback
+		if ok && e.Err == syscall.ENOENT {
+			return nil
+		}
 		return err
 	}
 

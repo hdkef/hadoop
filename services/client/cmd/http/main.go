@@ -37,6 +37,13 @@ func main() {
 	// init usecase
 	writeUC := ucImpl.NewWriteUsecase(&dataNodeService, &nameNodeService)
 	cronUC := ucImpl.NewCronUsecase(nameNodeCache, nameNodeCacheMtx, serviceRegistry)
+
+	// first init to fill cache
+	err := cronUC.SetNameNodeCache(context.Background())
+	for err != nil {
+		err = cronUC.SetNameNodeCache(context.Background())
+	}
+
 	cron := time.NewTicker(60 * time.Second)
 	defer cron.Stop()
 	go func(ch <-chan time.Time) {
